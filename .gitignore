@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+.venv/
+env/
+*.pyc
+
+# Node
+node_modules/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Data / outputs
+data/
+cua_outputs/
+
+# OS
+.DS_Store

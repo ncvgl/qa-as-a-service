@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sketch Studio</title>
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <div class="appShell">
+      <header class="topbar">
+        <div class="topbarBrand">
+          <div class="brandMark" aria-hidden="true"></div>
+          <div>
+            <h1>Sketch Studio</h1>
+          </div>
+        </div>
+
+        <div class="topbarActions">
+          <span class="saveIndicator" data-role="save-indicator">Unsaved changes</span>
+          <button class="secondaryButton" data-testid="clear-canvas" type="button">Clear</button>
+          <button class="primaryButton" data-testid="save-poster" type="button">Save draft</button>
+        </div>
+      </header>
+
+      <main class="studioLayout">
+        <aside class="paletteDock">
+          <section class="dockCard">
+            <h2 class="dockTitle">Colors</h2>
+            <section class="palette" data-testid="palette"></section>
+          </section>
+
+          <section class="dockCard">
+            <p class="dockLabel">Selected</p>
+            <div class="currentColorCard">
+              <span class="currentSwatch" data-role="current-color-swatch"></span>
+              <div>
+                <strong data-role="current-color-name">Midnight</strong>
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="studioSurface" aria-label="Sketch canvas workspace">
+          <div class="canvasStage">
+            <div class="stageHeader">
+              <h2>Canvas</h2>
+            </div>
+
+            <div class="canvasFrame">
+              <div class="paintGrid" data-testid="paint-grid"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="telemetry" hidden>
+        <span data-testid="paint-status">Canvas ready</span>
+        <span data-testid="save-status">No artwork saved yet</span>
+        <span data-testid="saved-checksum">none</span>
+        <span data-testid="saved-cell-count">0</span>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
