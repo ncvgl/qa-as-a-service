@@ -84,6 +84,7 @@ type ToolOutput =
 
 type ResponsesLoopContext = {
   context: RunExecutionContext;
+  enableGotoTool?: boolean;
   instructions: string;
   maxResponseTurns: number;
   prompt?: string;
@@ -357,6 +358,32 @@ function buildComputerToolDefinitions() {
   ];
 }
 
+function buildComputerToolDefinitionsWithGoto() {
+  return [
+    {
+      type: "computer",
+    },
+    {
+      type: "function",
+      name: "goto_url",
+      description:
+        "Navigate the browser to a URL. Use this to open websites. The page will be fully loaded before returning.",
+      strict: true,
+      parameters: {
+        additionalProperties: false,
+        properties: {
+          url: {
+            description: "The URL to navigate to (e.g. https://example.com).",
+            type: "string",
+          },
+        },
+        required: ["url"],
+        type: "object",
+      },
+    },
+  ];
+}
+
 async function withExecutionTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
@@ -476,21 +503,29 @@ async function executeFunctionToolCall(
     type: "function_call_requested",
   });
 
-  const output =
-    toolName === "exec_js"
-      ? await executeJavaScriptToolCall(
-          input,
-          functionCall,
-          options.vmContext ??
-            (() => {
-              throw new Error("exec_js requires a vmContext.");
-            })(),
-        )
-      : (() => {
-          throw new Error(
-            `Unexpected function call: ${functionCall.name ?? "<unknown>"}.`,
-          );
-        })();
+  let output: ToolOutput[];
+
+  if (toolName === "exec_js") {
+    output = await executeJavaScriptToolCall(
+      input,
+      functionCall,
+      options.vmContext ??
+        (() => {
+          throw new Error("exec_js requires a vmContext.");
+        })(),
+    );
+  } else if (toolName === "goto_url") {
+    const parsed = JSON.parse(functionCall.arguments ?? "{}") as { url?: string };
+    const url = parsed.url ?? "";
+    await input.session.page.goto(url, { waitUntil: "load", timeout: 30_000 });
+    await input.context.syncBrowserState(input.session);
+    await input.context.captureScreenshot(input.session, `goto-${Date.now()}`);
+    output = [{ text: `Navigated to ${url}`, type: "input_text" }];
+  } else {
+    throw new Error(
+      `Unexpected function call: ${functionCall.name ?? "<unknown>"}.`,
+    );
+  }
 
   await input.context.emitEvent({
     detail: toolName,
@@ -824,7 +859,9 @@ export async function runResponsesNativeComputerLoop(
         parallel_tool_calls: false,
         previous_response_id: previousResponseId,
         reasoning: { effort: "low" },
-        tools: buildComputerToolDefinitions(),
+        tools: input.enableGotoTool
+          ? buildComputerToolDefinitionsWithGoto()
+          : buildComputerToolDefinitions(),
         truncation: "auto",
       },
       input.context.signal,
@@ -984,7 +1021,9 @@ export async function runResponsesNativeStatelessLoop(
         model: input.context.detail.run.model,
         parallel_tool_calls: false,
         reasoning: { effort: "low" },
-        tools: buildComputerToolDefinitions(),
+        tools: input.enableGotoTool
+          ? buildComputerToolDefinitionsWithGoto()
+          : buildComputerToolDefinitions(),
         truncation: "auto",
       },
       input.context.signal,

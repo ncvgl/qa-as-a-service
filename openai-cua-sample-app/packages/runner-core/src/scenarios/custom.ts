@@ -18,9 +18,9 @@ import {
 const liveOnlyMessage =
   "Custom tasks require the live Responses API.";
 
-const customNativeInstructions = `You are a computer-use agent controlling a Chromium browser. Follow the operator's instructions precisely. Navigate to any URLs mentioned in the prompt, interact with pages as instructed, and report what you find or accomplish. If the prompt asks you to test something, describe the results clearly.`;
+const customNativeInstructions = `You are a computer-use agent controlling a Chromium browser. Follow the operator's instructions precisely. You have a goto_url tool to navigate to any URL. Use it to navigate to websites mentioned in the prompt. After navigating, interact with pages as instructed using computer actions and report what you find or accomplish. If the prompt asks you to test something, describe the results clearly.`;
 
-const customStatelessInstructions = `You are a computer-use agent controlling a Chromium browser. Follow the operator's instructions precisely. Navigate to any URLs mentioned in the prompt, interact with pages as instructed, and report what you find or accomplish. If the prompt asks you to test something, describe the results clearly.
+const customStatelessInstructions = `You are a computer-use agent controlling a Chromium browser. Follow the operator's instructions precisely. You have a goto_url tool to navigate to any URL. Use it to navigate to websites mentioned in the prompt. After navigating, interact with pages as instructed using computer actions and report what you find or accomplish. If the prompt asks you to test something, describe the results clearly.
 
 You are operating in stateless mode. Each turn you receive a fresh screenshot of the current browser state and a text summary of your previous actions. Use this context to continue where you left off.`;
 
@@ -79,6 +79,7 @@ class CustomNativeExecutor implements RunExecutor {
       const result = await loopFn(
         {
           context,
+          enableGotoTool: true,
           instructions: this.stateless
             ? customStatelessInstructions
             : customNativeInstructions,
