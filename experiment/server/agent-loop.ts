@@ -8,9 +8,9 @@ const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
 
 const SYSTEM_INSTRUCTIONS = `You are a browser automation agent. You are given a task and must complete it by interacting with a browser.
 
-You can see the current state of the browser in the provided screenshot. You have two tools:
+You have two tools:
 1. **goto_url** — Navigate to a URL. Use this ONLY for initial navigation or when you need to go to a completely different page.
-2. **computer** — Interact with the current page: click, type, scroll, keypress, etc. Use this for ALL interactions after navigating.
+2. **computer** — Interact with the current page: click, type, scroll, keypress, etc. Use the computer tool for UI interaction.
 
 **Environment:** We are running on macOS. Use Cmd instead of Ctrl for keyboard shortcuts (e.g. Cmd+L for address bar, Cmd+A for select all, Cmd+C/V for copy/paste).
 
@@ -54,35 +54,17 @@ export async function runAgent(
     // State for the stateful Responses API loop
     let previousResponseId: string | undefined;
 
-    // Initial input: user message with prompt + screenshot of blank page
-    const initialScreenshot = await captureScreenshot(
-      session.page,
-      screenshotDir,
-      "turn-1-input",
-      runId,
-    );
-
-    let nextInput: unknown = [
-      {
-        role: "user",
-        content: [
-          { type: "input_text", text: prompt },
-          {
-            type: "input_image",
-            detail: "original",
-            image_url: initialScreenshot.dataUrl,
-          },
-        ],
-      },
-    ];
+    // Per the CUA docs, the first request should be text-only.
+    // The model will respond with a screenshot request before taking actions.
+    let nextInput: unknown = prompt;
 
     for (let turnNum = 1; turnNum <= maxTurns; turnNum++) {
       if (signal.aborted) throw new Error("Run cancelled");
 
       const turnStart = Date.now();
 
-      // For turn > 1, capture fresh input screenshot
-      let inputScreenshotUrl = initialScreenshot.url;
+      // Capture input screenshot for the UI timeline (and stuck detection)
+      let inputScreenshotUrl = "";
       if (turnNum > 1) {
         const inputShot = await captureScreenshot(
           session.page,
@@ -92,9 +74,8 @@ export async function runAgent(
         );
         inputScreenshotUrl = inputShot.url;
         recentScreenshots.push(inputShot.buffer);
-      } else {
-        recentScreenshots.push(initialScreenshot.buffer);
       }
+      // Turn 1 has no input screenshot — it's a text-only request per CUA docs
 
       // Keep only last 5 screenshots for stuck detection
       if (recentScreenshots.length > 5) recentScreenshots.shift();
@@ -196,6 +177,9 @@ export async function runAgent(
         }
       }
 
+      // Wait for page to settle after actions (e.g. navigation, rendering)
+      await new Promise((r) => setTimeout(r, 1000));
+
       // Capture result screenshot
       const resultShot = await captureScreenshot(
         session.page,
@@ -211,6 +195,10 @@ export async function runAgent(
       } catch { /* page might be navigating */ }
 
       // Build tool outputs to send back (stateful approach)
+      // Note: screenshots can only be sent via computer_call_output, not as
+      // user messages (API rejects input_image with previous_response_id).
+      // So function-call-only turns (e.g. goto_url) will be "blind" — the
+      // model will request a screenshot on the next turn automatically.
       nextInput = buildToolOutputs(
         result.rawOutput,
         resultShot.dataUrl,

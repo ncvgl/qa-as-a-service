@@ -57,7 +57,7 @@ export default function Home() {
       setTotalDurationMs(0);
 
       try {
-        const res = await fetch("/api/run", {
+        const res = await fetch("http://localhost:4001/api/run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt, maxTurns }),
@@ -122,7 +122,7 @@ export default function Home() {
   const handleStop = useCallback(async () => {
     if (runId) {
       try {
-        await fetch(`/api/run/${runId}/stop`, { method: "POST" });
+        await fetch(`http://localhost:4001/api/run/${runId}/stop`, { method: "POST" });
       } catch {
         // ignore
       }

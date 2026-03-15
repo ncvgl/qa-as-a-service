@@ -127,8 +127,8 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
           </div>
         )}
 
-        {/* Screenshots */}
-        {(turn.inputScreenshotUrl || turn.resultScreenshotUrl) && (
+        {/* Screenshots — skip turn 1 since it's always a blank page */}
+        {turn.turn > 1 && (turn.inputScreenshotUrl || turn.resultScreenshotUrl) && (
           <div className="turn-section">
             <span className="turn-section-label">Screenshots</span>
             <div className="turn-screenshots">
