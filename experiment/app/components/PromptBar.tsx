@@ -13,6 +13,13 @@ const PRESETS: Record<string, string> = {
 5. Verify the message appears in the chat`,
   wikipedia: `Go to wikipedia.org, search for "Large language model", and tell me the first paragraph of the article.`,
   slawk_login: `Go to slawk.ncvgl.com, log in with email demo@slawk.dev and password tryme123, open user profile, then logout.`,
+  slawk_file_upload: `Go to slawk.ncvgl.com and log in with email demo@slawk.dev and password tryme123. Then:
+1. Check if a private channel called "qa-testing" exists in the sidebar. If not, create it using "Add channels".
+2. Open the "qa-testing" channel.
+3. Click the + button next to the message input to upload a file.
+4. Upload any available file (or create a dummy text file if prompted).
+5. Verify the file appears in the channel.
+6. Log out.`,
 };
 
 const PRESET_LABELS: Record<string, string> = {
@@ -20,6 +27,7 @@ const PRESET_LABELS: Record<string, string> = {
   google_search: "Google Search",
   slawk_dm: "Slawk DM Flow",
   slawk_login: "Slawk Login Flow",
+  slawk_file_upload: "Slawk File Upload",
   wikipedia: "Wikipedia Lookup",
 };
 

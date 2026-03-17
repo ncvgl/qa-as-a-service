@@ -36,7 +36,8 @@ const API_BASE = "http://localhost:4001";
 function buildFrameUrls(turns: Turn[]): string[] {
   const frames: string[] = [];
   for (const t of turns) {
-    if (t.inputScreenshotUrl) frames.push(API_BASE + t.inputScreenshotUrl);
+    // Skip turn 1 input — it's always a blank about:blank page
+    if (t.turn > 1 && t.inputScreenshotUrl) frames.push(API_BASE + t.inputScreenshotUrl);
     for (const url of t.actionScreenshotUrls ?? []) {
       frames.push(API_BASE + url);
     }
@@ -190,6 +191,7 @@ export default function Home() {
             state={runState}
             verdict={verdict}
             verdictSummary={verdictSummary}
+            verdictDetails={verdictDetails}
             error={error}
             frames={buildFrameUrls(turns)}
             totalDurationMs={totalDurationMs}

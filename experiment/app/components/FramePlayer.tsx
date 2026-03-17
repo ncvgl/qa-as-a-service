@@ -90,13 +90,13 @@ export default function FramePlayer({ frames }: Props) {
       {/* Controls */}
       <div className="frame-player-controls">
         <button className="frame-player-btn" onClick={stepBack} disabled={currentFrame === 0}>
-          &#9198;
+          &#8249;
         </button>
         <button className="frame-player-btn frame-player-btn-play" onClick={togglePlay}>
           {playing ? "\u23F8" : "\u25B6"}
         </button>
         <button className="frame-player-btn" onClick={stepForward} disabled={currentFrame >= total - 1}>
-          &#9197;
+          &#8250;
         </button>
 
         {/* Scrub bar */}

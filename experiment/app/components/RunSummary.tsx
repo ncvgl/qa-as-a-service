@@ -9,6 +9,7 @@ type Props = {
   state: RunState;
   verdict: Verdict;
   verdictSummary: string | null;
+  verdictDetails: string | null;
   error: string | null;
   frames: string[];
   totalDurationMs: number;
@@ -37,6 +38,7 @@ export default function RunSummary({
   state,
   verdict,
   verdictSummary,
+  verdictDetails,
   error,
   frames,
   totalDurationMs,
@@ -68,6 +70,9 @@ export default function RunSummary({
           </span>
         )}
       </div>
+      {verdictDetails && (
+        <div className="run-summary-details">{verdictDetails}</div>
+      )}
 
       {/* Frame-by-frame player */}
       {frames.length > 0 && <FramePlayer frames={frames} />}

@@ -204,7 +204,15 @@ export async function runAgent(
 
       // Execute computer actions — capture a screenshot after each one
       let actionIdx = 0;
+      let lastCursorPos: { x: number; y: number } | undefined;
       for (const action of result.actions) {
+        // Track cursor position from actions that target coordinates
+        const ax = Number(action.x ?? 0);
+        const ay = Number(action.y ?? 0);
+        if (["click", "double_click", "move", "scroll"].includes(action.type) && ax > 0 && ay > 0) {
+          lastCursorPos = { x: ax, y: ay };
+        }
+
         try {
           const desc = await executeAction(session.page, action, signal);
           turn.executedActions.push(desc);
@@ -220,6 +228,7 @@ export async function runAgent(
             screenshotDir,
             `turn-${turnNum}-action-${actionIdx}`,
             runId,
+            lastCursorPos,
           );
           turn.actionScreenshotUrls.push(actionShot.url);
         }

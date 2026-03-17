@@ -1,6 +1,7 @@
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { PNG } from "pngjs";
 import type { ComputerAction } from "./types.js";
 
 const DEFAULT_VIEWPORT = { width: 1440, height: 900 };
@@ -60,20 +61,58 @@ export type ScreenshotResult = {
   url: string;
 };
 
+/** Draw a red cursor dot with a white outline on a PNG buffer. */
+function drawCursorOnPng(pngBuf: Buffer, cx: number, cy: number): Buffer {
+  const img = PNG.sync.read(pngBuf);
+  const { width, height, data } = img;
+  const RADIUS = 8;
+  const OUTLINE = 2;
+
+  const setPixel = (px: number, py: number, r: number, g: number, b: number, a: number) => {
+    if (px < 0 || py < 0 || px >= width || py >= height) return;
+    const idx = (py * width + px) * 4;
+    const srcA = a / 255;
+    data[idx + 0] = Math.round(r * srcA + data[idx + 0] * (1 - srcA));
+    data[idx + 1] = Math.round(g * srcA + data[idx + 1] * (1 - srcA));
+    data[idx + 2] = Math.round(b * srcA + data[idx + 2] * (1 - srcA));
+    data[idx + 3] = Math.max(data[idx + 3], a);
+  };
+
+  const outer = RADIUS + OUTLINE;
+  for (let dy = -outer; dy <= outer; dy++) {
+    for (let dx = -outer; dx <= outer; dx++) {
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist <= RADIUS) {
+        // Red fill
+        setPixel(cx + dx, cy + dy, 235, 50, 50, 200);
+      } else if (dist <= outer) {
+        // White outline
+        setPixel(cx + dx, cy + dy, 255, 255, 255, 220);
+      }
+    }
+  }
+
+  return PNG.sync.write(img);
+}
+
 export async function captureScreenshot(
   page: Page,
   dir: string,
   label: string,
   runId: string,
+  cursorPos?: { x: number; y: number },
 ): Promise<ScreenshotResult> {
   fs.mkdirSync(dir, { recursive: true });
   const filename = `${label}.png`;
   const filePath = path.join(dir, filename);
-  const buffer = await page.screenshot({ type: "png" });
+  let buffer = Buffer.from(await page.screenshot({ type: "png" }));
+  if (cursorPos && Number.isFinite(cursorPos.x) && Number.isFinite(cursorPos.y)) {
+    buffer = drawCursorOnPng(buffer, Math.round(cursorPos.x), Math.round(cursorPos.y));
+  }
   fs.writeFileSync(filePath, buffer);
   const dataUrl = `data:image/png;base64,${buffer.toString("base64")}`;
   const url = `/api/run/${runId}/screenshots/${filename}`;
-  return { buffer: Buffer.from(buffer), path: filePath, dataUrl, url };
+  return { buffer, path: filePath, dataUrl, url };
 }
 
 function delay(ms: number, signal?: AbortSignal): Promise<void> {
