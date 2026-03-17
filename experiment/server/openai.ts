@@ -26,6 +26,26 @@ const GOTO_URL_TOOL = {
   },
 };
 
+const FILE_UPLOAD_TOOL = {
+  type: "function" as const,
+  name: "file_upload",
+  description:
+    "Upload a file to an <input type=\"file\"> element on the page. Use this when you need to upload a file — clicking file upload buttons opens a native OS dialog that cannot be interacted with via the computer tool. This tool programmatically sets the file on the file input element.",
+  strict: true,
+  parameters: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      selector: {
+        type: "string",
+        description:
+          "A CSS selector for the file input element (e.g. 'input[type=file]'). If unsure, use 'input[type=file]' which matches the first file input on the page.",
+      },
+    },
+    required: ["selector"],
+  },
+};
+
 let client: OpenAI | null = null;
 
 function getClient(): OpenAI {
@@ -55,7 +75,7 @@ export async function callModel(params: CallModelParams): Promise<FullModelResul
   const openai = getClient();
 
   const tools = includeGotoUrl
-    ? [COMPUTER_TOOL, GOTO_URL_TOOL]
+    ? [COMPUTER_TOOL, GOTO_URL_TOOL, FILE_UPLOAD_TOOL]
     : [COMPUTER_TOOL];
 
   const request: Record<string, unknown> = {

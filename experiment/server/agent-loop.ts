@@ -1,3 +1,4 @@
+import * as fs from "node:fs";
 import * as path from "node:path";
 import { launchBrowser, captureScreenshot, executeAction, type BrowserSession } from "./browser.js";
 import { callModel, buildToolOutputs, type FullModelResult } from "./openai.js";
@@ -9,9 +10,10 @@ const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
 
 const SYSTEM_INSTRUCTIONS = `You are a browser automation agent. You are given a task and must complete it by interacting with a browser.
 
-You have two tools:
+You have three tools:
 1. **goto_url** — Navigate to a URL. Use this ONLY for initial navigation or when you need to go to a completely different page.
 2. **computer** — Interact with the current page: click, type, scroll, keypress, etc. Use the computer tool for UI interaction.
+3. **file_upload** — Upload a file to a file input element. Use this when the task requires uploading a file. Clicking upload buttons triggers a native OS file dialog that you CANNOT interact with — you MUST use this tool instead. A dummy test file will be created and uploaded automatically. Pass a CSS selector for the file input (usually 'input[type=file]').
 
 **Environment:** We are running on macOS. Use Cmd instead of Ctrl for keyboard shortcuts (e.g. Cmd+L for address bar, Cmd+A for select all, Cmd+C/V for copy/paste).
 
@@ -185,7 +187,7 @@ export async function runAgent(
         break;
       }
 
-      // Execute function calls (goto_url)
+      // Execute function calls (goto_url, file_upload)
       const functionResults = new Map<string, string>();
       for (const fc of result.functionCalls) {
         if (fc.name === "goto_url" && fc.args.url) {
@@ -197,6 +199,24 @@ export async function runAgent(
           } catch (err) {
             const errMsg = (err as Error).message;
             turn.executedActions.push(`goto_url("${url}") — ERROR: ${errMsg}`);
+            functionResults.set(fc.callId, `Error: ${errMsg}`);
+          }
+        } else if (fc.name === "file_upload") {
+          const selector = String(fc.args.selector ?? "input[type=file]");
+          try {
+            // Create a dummy test file
+            const dummyPath = path.join(screenshotDir, "test-upload.txt");
+            fs.writeFileSync(dummyPath, "This is a test file uploaded by the QA Agent.\n");
+
+            // Find the file input and set the file
+            const fileInput = await session.page.locator(selector).first();
+            await fileInput.setInputFiles(dummyPath);
+
+            turn.executedActions.push(`file_upload("${selector}")`);
+            functionResults.set(fc.callId, "File 'test-upload.txt' uploaded successfully to the file input element.");
+          } catch (err) {
+            const errMsg = (err as Error).message;
+            turn.executedActions.push(`file_upload("${selector}") — ERROR: ${errMsg}`);
             functionResults.set(fc.callId, `Error: ${errMsg}`);
           }
         }
