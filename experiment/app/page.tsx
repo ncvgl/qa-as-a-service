@@ -5,6 +5,7 @@ import PromptBar from "./components/PromptBar";
 import RunStatus from "./components/RunStatus";
 import RunSummary from "./components/RunSummary";
 import TurnTimeline from "./components/TurnTimeline";
+import RunHistory from "./components/RunHistory";
 
 type TurnStatus = "running" | "completed" | "stuck" | "error";
 type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
@@ -47,6 +48,7 @@ function buildFrameUrls(turns: Turn[]): string[] {
 }
 
 export default function Home() {
+  // Live run state
   const [runState, setRunState] = useState<RunState>("idle");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [runId, setRunId] = useState<string | null>(null);
@@ -60,10 +62,29 @@ export default function Home() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const runStartTimeRef = useRef<number>(0);
 
+  // History state
+  const [viewMode, setViewMode] = useState<"live" | "history">("live");
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+
   const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
+
+  const resetLiveState = useCallback(() => {
+    setTurns([]);
+    setRunState("idle");
+    setFinalMessage(null);
+    setVerdict(null);
+    setVerdictSummary(null);
+    setVerdictDetails(null);
+    setError(null);
+    setTotalDurationMs(0);
+  }, []);
 
   const handleRun = useCallback(
     async (prompt: string) => {
+      // Switch to live mode
+      setViewMode("live");
+      setSelectedRunId(null);
+
       // Close any existing SSE connection
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
@@ -71,18 +92,12 @@ export default function Home() {
       }
 
       // Reset state
-      setTurns([]);
+      resetLiveState();
       setRunState("running");
-      setFinalMessage(null);
-      setVerdict(null);
-      setVerdictSummary(null);
-      setVerdictDetails(null);
-      setError(null);
       runStartTimeRef.current = Date.now();
-      setTotalDurationMs(0);
 
       try {
-        const res = await fetch("http://localhost:4001/api/run", {
+        const res = await fetch(`${API_BASE}/api/run`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt, maxTurns }),
@@ -97,7 +112,7 @@ export default function Home() {
         setRunId(id);
 
         // Connect SSE directly to Fastify (Next.js proxy buffers SSE)
-        const es = new EventSource(`http://localhost:4001/api/run/${id}/events`);
+        const es = new EventSource(`${API_BASE}/api/run/${id}/events`);
         eventSourceRef.current = es;
 
         es.onmessage = (event) => {
@@ -144,13 +159,13 @@ export default function Home() {
         setError((err as Error).message);
       }
     },
-    [maxTurns],
+    [maxTurns, resetLiveState],
   );
 
   const handleStop = useCallback(async () => {
     if (runId) {
       try {
-        await fetch(`http://localhost:4001/api/run/${runId}/stop`, { method: "POST" });
+        await fetch(`${API_BASE}/api/run/${runId}/stop`, { method: "POST" });
       } catch {
         // ignore
       }
@@ -161,43 +176,88 @@ export default function Home() {
     }
   }, [runId]);
 
+  const handleSelectRun = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/run/${id}/data`);
+      if (!res.ok) return;
+      const data = await res.json();
+
+      setViewMode("history");
+      setSelectedRunId(id);
+      setTurns(data.turns ?? []);
+      setRunState(data.state);
+      setFinalMessage(data.finalMessage ?? null);
+      setVerdict(data.verdict ?? null);
+      setVerdictSummary(data.verdictSummary ?? null);
+      setVerdictDetails(data.verdictDetails ?? null);
+      setError(data.error ?? null);
+
+      // Calculate duration from timestamps
+      if (data.startedAt && data.finishedAt) {
+        setTotalDurationMs(new Date(data.finishedAt).getTime() - new Date(data.startedAt).getTime());
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const handleNewRun = useCallback(() => {
+    setViewMode("live");
+    setSelectedRunId(null);
+    // Don't reset if there's an active run
+    if (runState !== "running") {
+      resetLiveState();
+    }
+  }, [runState, resetLiveState]);
+
+  const isFinished = runState === "completed" || runState === "failed" || runState === "stuck";
+
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>QA Agent</h1>
-      </header>
+    <div className="app-layout">
+      <RunHistory
+        activeRunId={runState === "running" ? runId : null}
+        selectedRunId={viewMode === "history" ? selectedRunId : runId}
+        onSelectRun={handleSelectRun}
+        onNewRun={handleNewRun}
+      />
 
-      <div className="app-body">
-        <PromptBar
-          onRun={handleRun}
-          onStop={handleStop}
-          isRunning={runState === "running"}
-        />
+      <div className="app">
+        <header className="app-header">
+          <h1>QA Agent</h1>
+        </header>
 
-        <RunStatus
-          state={runState}
-          currentTurn={currentTurn}
-          maxTurns={maxTurns}
-          verdict={verdict}
-          error={error}
-          totalDurationMs={totalDurationMs}
-        />
+        <div className="app-body">
+          {viewMode === "live" && (
+            <PromptBar
+              onRun={handleRun}
+              onStop={handleStop}
+              isRunning={runState === "running"}
+            />
+          )}
 
-        <TurnTimeline turns={turns} />
-
-        {/* Run summary with frame player at the bottom after all turns */}
-        {(runState === "completed" || runState === "failed" || runState === "stuck") && turns.length > 0 && (
-          <RunSummary
+          <RunStatus
             state={runState}
+            currentTurn={currentTurn}
+            maxTurns={maxTurns}
             verdict={verdict}
-            verdictSummary={verdictSummary}
-            verdictDetails={verdictDetails}
             error={error}
-            frames={buildFrameUrls(turns)}
             totalDurationMs={totalDurationMs}
-            totalTurns={currentTurn}
           />
-        )}
+
+          <TurnTimeline turns={turns} />
+
+          {/* Run summary with frame player at the bottom after all turns */}
+          {isFinished && turns.length > 0 && (
+            <RunSummary
+              state={runState}
+              verdict={verdict}
+              verdictSummary={verdictSummary}
+              verdictDetails={verdictDetails}
+              error={error}
+              frames={buildFrameUrls(turns)}
+              totalDurationMs={totalDurationMs}
+              totalTurns={currentTurn}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

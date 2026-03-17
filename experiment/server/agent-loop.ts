@@ -331,6 +331,18 @@ export async function runAgent(
       }
     } catch { /* gif generation is best-effort */ }
 
+    // Persist run data to disk (strip rawModelOutput to save space)
+    try {
+      const savedRun = {
+        ...run,
+        turns: run.turns.map(({ rawModelOutput, ...rest }) => rest),
+      };
+      fs.writeFileSync(
+        path.join(screenshotDir, "run.json"),
+        JSON.stringify(savedRun, null, 2),
+      );
+    } catch { /* persistence is best-effort */ }
+
     onEvent({
       type: "run_complete",
       data: {

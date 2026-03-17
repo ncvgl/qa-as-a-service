@@ -67,6 +67,20 @@ export type Run = {
   error: string | null;
 };
 
+// ── Run metadata (for history listing) ──
+
+export type RunMeta = {
+  id: string;
+  prompt: string;
+  state: RunState;
+  verdict: Verdict;
+  verdictSummary: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+  totalTurns: number;
+  error: string | null;
+};
+
 // ── SSE Events ──
 
 export type TurnEvent = {

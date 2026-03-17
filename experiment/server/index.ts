@@ -4,7 +4,7 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import { v4 as uuid } from "uuid";
 import { runAgent, stopRun, getScreenshotDir } from "./agent-loop.js";
-import type { Run, SSEEvent } from "./types.js";
+import type { Run, RunMeta, SSEEvent } from "./types.js";
 
 const PORT = Number(process.env.PORT ?? 4001);
 const HOST = process.env.HOST ?? "0.0.0.0";
@@ -172,6 +172,60 @@ app.get<{
   }
 
   return reply.status(404).send({ error: "GIF not found" });
+});
+
+// List all completed runs
+app.get("/api/runs", async (_request, reply) => {
+  const screenshotsBase = path.join(process.cwd(), "screenshots");
+  if (!fs.existsSync(screenshotsBase)) {
+    return reply.send([]);
+  }
+
+  const entries = fs.readdirSync(screenshotsBase, { withFileTypes: true });
+  const metas: RunMeta[] = [];
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const runJsonPath = path.join(screenshotsBase, entry.name, "run.json");
+    if (!fs.existsSync(runJsonPath)) continue;
+    try {
+      const raw = JSON.parse(fs.readFileSync(runJsonPath, "utf-8"));
+      metas.push({
+        id: raw.id,
+        prompt: raw.prompt,
+        state: raw.state,
+        verdict: raw.verdict ?? null,
+        verdictSummary: raw.verdictSummary ?? null,
+        startedAt: raw.startedAt,
+        finishedAt: raw.finishedAt,
+        totalTurns: raw.turns?.length ?? 0,
+        error: raw.error,
+      });
+    } catch { /* skip malformed files */ }
+  }
+
+  // Sort by startedAt descending (most recent first)
+  metas.sort((a, b) => (b.startedAt ?? "").localeCompare(a.startedAt ?? ""));
+  return reply.send(metas);
+});
+
+// Get full run data
+app.get<{
+  Params: { id: string };
+}>("/api/run/:id/data", async (request, reply) => {
+  const { id } = request.params;
+  const runJsonPath = path.join(getScreenshotDir(id), "run.json");
+
+  if (fs.existsSync(runJsonPath)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(runJsonPath, "utf-8"));
+      return reply.send(data);
+    } catch {
+      return reply.status(500).send({ error: "Failed to parse run data" });
+    }
+  }
+
+  return reply.status(404).send({ error: "Run not found" });
 });
 
 // Stop a run
