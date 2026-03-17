@@ -2,7 +2,8 @@ import * as path from "node:path";
 import { launchBrowser, captureScreenshot, executeAction, type BrowserSession } from "./browser.js";
 import { callModel, buildToolOutputs, type FullModelResult } from "./openai.js";
 import { isStuck } from "./stuck-detector.js";
-import type { Run, Turn, SSEEvent } from "./types.js";
+import { generateRunGif } from "./gif-generator.js";
+import type { Run, Turn, SSEEvent, Verdict } from "./types.js";
 
 const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
 
@@ -18,8 +19,34 @@ You have two tools:
 - If you are already on the correct page, do NOT call goto_url again. Use the computer tool to click, type, or scroll.
 - Be precise with coordinates — look at the screenshot carefully to target the exact position of UI elements.
 - After each action, you will receive a new screenshot showing the result.
-- When the task is fully completed, respond with a text message (no tool calls) summarizing what you accomplished.
-- If you get stuck or cannot complete the task, respond with a text message explaining what went wrong.`;
+- When done (whether successful or not), respond with a text message (no tool calls) using this exact format:
+
+RESULT: <success|platform_error|agent_failure>
+SUMMARY: <one sentence describing what happened>
+DETAILS: <what you observed that led to this conclusion>
+
+Use "success" when the task was completed as requested.
+Use "platform_error" when the website/application is broken, unresponsive, shows error messages, or behaves unexpectedly (e.g. buttons don't work, pages fail to load, features are missing). This means the platform under test has a bug.
+Use "agent_failure" when you were unable to complete the task due to your own limitations (e.g. could not find an element, misclicked, got confused by the UI).`;
+
+function parseVerdict(run: Run): void {
+  const msg = run.finalMessage;
+  if (!msg) return;
+
+  const resultMatch = msg.match(/RESULT:\s*(success|platform_error|agent_failure)/i);
+  const summaryMatch = msg.match(/SUMMARY:\s*(.+?)(?:\n|$)/i);
+  const detailsMatch = msg.match(/DETAILS:\s*([\s\S]+)/i);
+
+  if (resultMatch) {
+    run.verdict = resultMatch[1].toLowerCase() as Verdict;
+  }
+  if (summaryMatch) {
+    run.verdictSummary = summaryMatch[1].trim();
+  }
+  if (detailsMatch) {
+    run.verdictDetails = detailsMatch[1].trim();
+  }
+}
 
 export async function runAgent(
   runId: string,
@@ -39,6 +66,9 @@ export async function runAgent(
     startedAt: new Date().toISOString(),
     finishedAt: null,
     finalMessage: null,
+    verdict: null,
+    verdictSummary: null,
+    verdictDetails: null,
     maxTurns,
     error: null,
   };
@@ -96,15 +126,18 @@ export async function runAgent(
         rawModelOutput: [],
         executedActions: [],
         resultScreenshotUrl: "",
+        actionScreenshotUrls: [],
         pageUrl: "",
         pageTitle: "",
         tokenUsage: { input: 0, output: 0, reasoning: 0 },
         durationMs: 0,
+        apiDurationMs: 0,
         createdAt: new Date().toISOString(),
       };
       onEvent({ type: "turn", data: turn });
 
       // Call model (stateful with previous_response_id)
+      const apiStart = Date.now();
       const result: FullModelResult = await callModel({
         input: nextInput,
         instructions: SYSTEM_INSTRUCTIONS,
@@ -112,6 +145,7 @@ export async function runAgent(
         signal,
         includeGotoUrl: true,
       });
+      turn.apiDurationMs = Date.now() - apiStart;
 
       previousResponseId = result.responseId;
 
@@ -147,6 +181,7 @@ export async function runAgent(
         onEvent({ type: "turn", data: turn });
         run.state = "completed";
         run.finalMessage = result.message;
+        parseVerdict(run);
         break;
       }
 
@@ -167,7 +202,8 @@ export async function runAgent(
         }
       }
 
-      // Execute computer actions
+      // Execute computer actions — capture a screenshot after each one
+      let actionIdx = 0;
       for (const action of result.actions) {
         try {
           const desc = await executeAction(session.page, action, signal);
@@ -175,12 +211,25 @@ export async function runAgent(
         } catch (err) {
           turn.executedActions.push(`ERROR: ${action.type} — ${(err as Error).message}`);
         }
+
+        // Capture per-action screenshot (skip for screenshot-only actions)
+        if (action.type !== "screenshot") {
+          await new Promise((r) => setTimeout(r, 500));
+          const actionShot = await captureScreenshot(
+            session.page,
+            screenshotDir,
+            `turn-${turnNum}-action-${actionIdx}`,
+            runId,
+          );
+          turn.actionScreenshotUrls.push(actionShot.url);
+        }
+        actionIdx++;
       }
 
-      // Wait for page to settle after actions (e.g. navigation, rendering)
-      await new Promise((r) => setTimeout(r, 1000));
+      // Wait for page to settle after all actions
+      await new Promise((r) => setTimeout(r, 500));
 
-      // Capture result screenshot
+      // Capture final result screenshot (used for the model's next input)
       const resultShot = await captureScreenshot(
         session.page,
         screenshotDir,
@@ -244,13 +293,26 @@ export async function runAgent(
     run.finishedAt = new Date().toISOString();
     activeRuns.delete(runId);
 
+    // Generate GIF from all result screenshots
+    let gifUrl: string | null = null;
+    try {
+      const gifPath = await generateRunGif(screenshotDir, runId);
+      if (gifPath) {
+        gifUrl = `/api/run/${runId}/gif`;
+      }
+    } catch { /* gif generation is best-effort */ }
+
     onEvent({
       type: "run_complete",
       data: {
         state: run.state,
         finalMessage: run.finalMessage,
+        verdict: run.verdict,
+        verdictSummary: run.verdictSummary,
+        verdictDetails: run.verdictDetails,
         error: run.error,
         totalTurns: run.turns.length,
+        gifUrl,
       },
     });
   }

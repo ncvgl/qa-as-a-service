@@ -1,7 +1,7 @@
 import { PNG } from "pngjs";
 
-const CHANNEL_TOLERANCE = 10;
-const STUCK_THRESHOLD = 0.90;
+const CHANNEL_TOLERANCE = 0;
+const STUCK_THRESHOLD = 1.0;
 
 export function compareScreenshots(buf1: Buffer, buf2: Buffer): number {
   const img1 = PNG.sync.read(buf1);

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CUA Agent",
-  description: "Computer Use Agent — Browser Automation",
+  title: "QA Agent",
+  description: "QA Agent — Autonomous browser testing",
 };
 
 export default function RootLayout({

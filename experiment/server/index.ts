@@ -160,6 +160,20 @@ app.get<{
   return reply.status(404).send({ error: "Screenshot not found" });
 });
 
+// Serve run GIF
+app.get<{
+  Params: { id: string };
+}>("/api/run/:id/gif", async (request, reply) => {
+  const { id } = request.params;
+  const gifPath = path.join(getScreenshotDir(id), "run.gif");
+
+  if (fs.existsSync(gifPath)) {
+    return reply.type("image/gif").send(fs.readFileSync(gifPath));
+  }
+
+  return reply.status(404).send({ error: "GIF not found" });
+});
+
 // Stop a run
 app.post<{
   Params: { id: string };

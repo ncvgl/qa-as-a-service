@@ -13,14 +13,25 @@ export type BrowserSession = {
   close: () => Promise<void>;
 };
 
-export async function launchBrowser(): Promise<BrowserSession> {
-  const browser = await chromium.launch({
-    headless: false,
+// Singleton browser instance — stays alive across runs to avoid cold starts
+let sharedBrowser: Browser | null = null;
+
+async function getOrLaunchBrowser(): Promise<Browser> {
+  if (sharedBrowser && sharedBrowser.isConnected()) {
+    return sharedBrowser;
+  }
+  sharedBrowser = await chromium.launch({
+    headless: true,
     args: [
       `--window-size=${DEFAULT_VIEWPORT.width},${DEFAULT_VIEWPORT.height}`,
       "--disable-blink-features=AutomationControlled",
     ],
   });
+  return sharedBrowser;
+}
+
+export async function launchBrowser(): Promise<BrowserSession> {
+  const browser = await getOrLaunchBrowser();
 
   const context = await browser.newContext({
     viewport: DEFAULT_VIEWPORT,
@@ -36,8 +47,8 @@ export async function launchBrowser(): Promise<BrowserSession> {
     context,
     page,
     close: async () => {
+      // Only close the context, keep the browser alive for the next run
       await context.close();
-      await browser.close();
     },
   };
 }

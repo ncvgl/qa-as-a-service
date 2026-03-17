@@ -3,10 +3,12 @@
 import { useState, useRef, useCallback } from "react";
 import PromptBar from "./components/PromptBar";
 import RunStatus from "./components/RunStatus";
+import RunSummary from "./components/RunSummary";
 import TurnTimeline from "./components/TurnTimeline";
 
 type TurnStatus = "running" | "completed" | "stuck" | "error";
 type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
+type Verdict = "success" | "platform_error" | "agent_failure" | null;
 
 type Turn = {
   turn: number;
@@ -21,11 +23,27 @@ type Turn = {
   rawModelOutput: Array<Record<string, unknown>>;
   executedActions: string[];
   resultScreenshotUrl: string;
+  actionScreenshotUrls: string[];
   pageUrl: string;
   pageTitle: string;
   tokenUsage: { input: number; output: number; reasoning: number };
   durationMs: number;
+  apiDurationMs: number;
 };
+
+const API_BASE = "http://localhost:4001";
+
+function buildFrameUrls(turns: Turn[]): string[] {
+  const frames: string[] = [];
+  for (const t of turns) {
+    if (t.inputScreenshotUrl) frames.push(API_BASE + t.inputScreenshotUrl);
+    for (const url of t.actionScreenshotUrls ?? []) {
+      frames.push(API_BASE + url);
+    }
+    if (t.resultScreenshotUrl) frames.push(API_BASE + t.resultScreenshotUrl);
+  }
+  return frames;
+}
 
 export default function Home() {
   const [runState, setRunState] = useState<RunState>("idle");
@@ -33,6 +51,9 @@ export default function Home() {
   const [runId, setRunId] = useState<string | null>(null);
   const [maxTurns] = useState(20);
   const [finalMessage, setFinalMessage] = useState<string | null>(null);
+  const [verdict, setVerdict] = useState<Verdict>(null);
+  const [verdictSummary, setVerdictSummary] = useState<string | null>(null);
+  const [verdictDetails, setVerdictDetails] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [totalDurationMs, setTotalDurationMs] = useState<number>(0);
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -52,6 +73,9 @@ export default function Home() {
       setTurns([]);
       setRunState("running");
       setFinalMessage(null);
+      setVerdict(null);
+      setVerdictSummary(null);
+      setVerdictDetails(null);
       setError(null);
       runStartTimeRef.current = Date.now();
       setTotalDurationMs(0);
@@ -93,6 +117,9 @@ export default function Home() {
             } else if (parsed.type === "run_complete") {
               setRunState(parsed.data.state);
               setFinalMessage(parsed.data.finalMessage);
+              setVerdict(parsed.data.verdict ?? null);
+              setVerdictSummary(parsed.data.verdictSummary ?? null);
+              setVerdictDetails(parsed.data.verdictDetails ?? null);
               setError(parsed.data.error);
               setTotalDurationMs(Date.now() - runStartTimeRef.current);
               es.close();
@@ -136,8 +163,7 @@ export default function Home() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>CUA Agent</h1>
-        <p>Computer Use Agent — autonomous browser automation</p>
+        <h1>QA Agent</h1>
       </header>
 
       <div className="app-body">
@@ -151,12 +177,25 @@ export default function Home() {
           state={runState}
           currentTurn={currentTurn}
           maxTurns={maxTurns}
-          finalMessage={finalMessage}
+          verdict={verdict}
           error={error}
           totalDurationMs={totalDurationMs}
         />
 
         <TurnTimeline turns={turns} />
+
+        {/* Run summary with frame player at the bottom after all turns */}
+        {(runState === "completed" || runState === "failed" || runState === "stuck") && turns.length > 0 && (
+          <RunSummary
+            state={runState}
+            verdict={verdict}
+            verdictSummary={verdictSummary}
+            error={error}
+            frames={buildFrameUrls(turns)}
+            totalDurationMs={totalDurationMs}
+            totalTurns={currentTurn}
+          />
+        )}
       </div>
     </div>
   );

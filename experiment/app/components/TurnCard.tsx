@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 type TurnStatus = "running" | "completed" | "stuck" | "error";
 
 type Turn = {
@@ -15,15 +17,17 @@ type Turn = {
   rawModelOutput: Array<Record<string, unknown>>;
   executedActions: string[];
   resultScreenshotUrl: string;
+  actionScreenshotUrls: string[];
   pageUrl: string;
   pageTitle: string;
   tokenUsage: { input: number; output: number; reasoning: number };
   durationMs: number;
+  apiDurationMs: number;
 };
 
 type Props = {
   turn: Turn;
-  onScreenshotClick: (url: string) => void;
+  onScreenshotClick: (urls: string[], index: number) => void;
 };
 
 function formatTokens(n: number): string {
@@ -38,9 +42,43 @@ function formatDuration(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
+function extractReasoning(rawOutput: Array<Record<string, unknown>>): string | null {
+  const parts: string[] = [];
+  for (const item of rawOutput) {
+    if (item.type === "reasoning") {
+      const summary = item.summary as Array<Record<string, unknown>> | undefined;
+      if (summary) {
+        for (const s of summary) {
+          if (s.type === "summary_text" && s.text) parts.push(String(s.text).replace(/\*\*/g, ""));
+        }
+      }
+    }
+  }
+  return parts.length > 0 ? parts.join("\n") : null;
+}
+
+function extractFinalAnswer(rawOutput: Array<Record<string, unknown>>): string | null {
+  for (const item of rawOutput) {
+    if (item.type === "message") {
+      const content = item.content as Array<Record<string, unknown>> | undefined;
+      if (content) {
+        const texts = content
+          .filter((c) => c.type === "output_text")
+          .map((c) => String(c.text ?? ""));
+        if (texts.length > 0) return texts.join("\n");
+      }
+    }
+  }
+  return null;
+}
+
 export default function TurnCard({ turn, onScreenshotClick }: Props) {
+  const [rawExpanded, setRawExpanded] = useState(false);
+  const [inputExpanded, setInputExpanded] = useState(false);
   const isRunning = turn.status === "running";
   const hasModelOutput = (turn.rawModelOutput && turn.rawModelOutput.length > 0) || turn.modelResponse.message;
+  const reasoning = extractReasoning(turn.rawModelOutput ?? []);
+  const finalAnswer = extractFinalAnswer(turn.rawModelOutput ?? []);
 
   return (
     <div className="turn-card">
@@ -51,12 +89,6 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
           <span className={`status-badge ${turn.status}`}>{turn.status}</span>
         </div>
         <div className="turn-card-header-right">
-          {turn.pageUrl && turn.pageUrl !== "about:blank" && (
-            <span className="turn-page-info">
-              {turn.pageTitle || turn.pageUrl}
-            </span>
-          )}
-          <span className="turn-duration">{formatDuration(turn.durationMs)}</span>
         </div>
       </div>
 
@@ -70,32 +102,62 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
           <span className="turn-stat-label">Output Tokens</span>
           <span className="turn-stat-value">{formatTokens(turn.tokenUsage.output)}</span>
         </div>
-        {turn.tokenUsage.reasoning > 0 && (
-          <div className="turn-stat">
-            <span className="turn-stat-label">Reasoning Tokens</span>
-            <span className="turn-stat-value">{formatTokens(turn.tokenUsage.reasoning)}</span>
-          </div>
-        )}
         <div className="turn-stat">
-          <span className="turn-stat-label">Duration</span>
+          <span className="turn-stat-label">Reasoning Tokens</span>
+          <span className="turn-stat-value">{formatTokens(turn.tokenUsage.reasoning)}</span>
+        </div>
+        <div className="turn-stat">
+          <span className="turn-stat-label">API Response</span>
+          <span className="turn-stat-value">{formatDuration(turn.apiDurationMs)}</span>
+        </div>
+        <div className="turn-stat">
+          <span className="turn-stat-label">Total</span>
           <span className="turn-stat-value">{formatDuration(turn.durationMs)}</span>
         </div>
       </div>
 
       <div className="turn-card-body">
-        {/* Input sent — always visible */}
+        {/* Input sent — collapsed by default */}
         <div className="turn-section">
-          <span className="turn-section-label">Input Sent to Model</span>
-          <div className="turn-input-text">{turn.inputText}</div>
+          <button
+            className="turn-raw-toggle"
+            onClick={() => setInputExpanded((prev) => !prev)}
+          >
+            {inputExpanded ? "▾" : "▸"} Input sent to API
+          </button>
+          {inputExpanded && (
+            <div className="turn-input-text">{turn.inputText}</div>
+          )}
         </div>
 
-        {/* ── Raw Model Output ── */}
+        {/* ── Raw API Output (collapsed by default) ── */}
         {hasModelOutput && (
           <div className="turn-section">
-            <span className="turn-section-label turn-section-label-model">
-              Model Response (raw API output)
-            </span>
-            <pre className="turn-raw-output">{JSON.stringify(turn.rawModelOutput, null, 2)}</pre>
+            <button
+              className="turn-raw-toggle"
+              onClick={() => setRawExpanded((prev) => !prev)}
+            >
+              {rawExpanded ? "▾" : "▸"} Raw API output
+            </button>
+            {rawExpanded && (
+              <pre className="turn-raw-output">{JSON.stringify(turn.rawModelOutput, null, 2)}</pre>
+            )}
+          </div>
+        )}
+
+        {/* ── Model Reasoning ── */}
+        {reasoning && (
+          <div className="turn-section">
+            <span className="turn-section-label turn-section-label-model">Model Reasoning</span>
+            <div className="turn-reasoning-text">{reasoning}</div>
+          </div>
+        )}
+
+        {/* ── Final Answer ── */}
+        {finalAnswer && (
+          <div className="turn-section">
+            <span className="turn-section-label turn-section-label-final">Final Answer</span>
+            <div className="turn-final-answer" style={{ whiteSpace: "pre-wrap" }}>{finalAnswer}</div>
           </div>
         )}
 
@@ -127,38 +189,43 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
           </div>
         )}
 
-        {/* Screenshots — skip turn 1 since it's always a blank page */}
-        {turn.turn > 1 && (turn.inputScreenshotUrl || turn.resultScreenshotUrl) && (
-          <div className="turn-section">
-            <span className="turn-section-label">Screenshots</span>
-            <div className="turn-screenshots">
-              {turn.inputScreenshotUrl && (
-                <div className="turn-screenshot-wrapper">
-                  <span className="turn-screenshot-label">Before</span>
-                  <img
-                    className="turn-screenshot"
-                    src={turn.inputScreenshotUrl}
-                    alt={`Turn ${turn.turn} input`}
-                    onClick={() => onScreenshotClick(turn.inputScreenshotUrl)}
-                    loading="lazy"
-                  />
-                </div>
-              )}
-              {turn.resultScreenshotUrl && (
-                <div className="turn-screenshot-wrapper">
-                  <span className="turn-screenshot-label">After</span>
-                  <img
-                    className="turn-screenshot"
-                    src={turn.resultScreenshotUrl}
-                    alt={`Turn ${turn.turn} result`}
-                    onClick={() => onScreenshotClick(turn.resultScreenshotUrl)}
-                    loading="lazy"
-                  />
-                </div>
-              )}
+        {/* Screenshots — skip turn 1 (blank page) and text-only final turns (no actions) */}
+        {turn.turn > 1 && turn.executedActions.length > 0 && (turn.inputScreenshotUrl || turn.resultScreenshotUrl) && (() => {
+          // Build ordered list of all screenshots for this turn
+          const allUrls: string[] = [];
+          const labels: string[] = [];
+          if (turn.inputScreenshotUrl) {
+            allUrls.push(turn.inputScreenshotUrl);
+            labels.push("Before");
+          }
+          const actionUrls = turn.actionScreenshotUrls ?? [];
+          for (let i = 0; i < actionUrls.length; i++) {
+            allUrls.push(actionUrls[i]);
+            labels.push(`After ${i + 1}`);
+          }
+          if (turn.resultScreenshotUrl && actionUrls.length === 0) {
+            allUrls.push(turn.resultScreenshotUrl);
+            labels.push("After");
+          }
+          return (
+            <div className="turn-section">
+              <div className="turn-screenshots">
+                {allUrls.map((url, i) => (
+                  <div className="turn-screenshot-wrapper" key={i}>
+                    <span className="turn-screenshot-label">{labels[i]}</span>
+                    <img
+                      className="turn-screenshot"
+                      src={url}
+                      alt={`Turn ${turn.turn} ${labels[i]}`}
+                      onClick={() => onScreenshotClick(allUrls, i)}
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );

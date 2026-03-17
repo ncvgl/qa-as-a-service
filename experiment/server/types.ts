@@ -37,16 +37,20 @@ export type Turn = {
   rawModelOutput: Array<Record<string, unknown>>;
   executedActions: string[];
   resultScreenshotUrl: string;
+  actionScreenshotUrls: string[];
   pageUrl: string;
   pageTitle: string;
   tokenUsage: { input: number; output: number; reasoning: number };
   durationMs: number;
+  apiDurationMs: number;
   createdAt: string;
 };
 
 // ── Run ──
 
 export type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
+
+export type Verdict = "success" | "platform_error" | "agent_failure" | null;
 
 export type Run = {
   id: string;
@@ -56,6 +60,9 @@ export type Run = {
   startedAt: string;
   finishedAt: string | null;
   finalMessage: string | null;
+  verdict: Verdict;
+  verdictSummary: string | null;
+  verdictDetails: string | null;
   maxTurns: number;
   error: string | null;
 };
@@ -72,8 +79,12 @@ export type RunCompleteEvent = {
   data: {
     state: RunState;
     finalMessage: string | null;
+    verdict: Verdict;
+    verdictSummary: string | null;
+    verdictDetails: string | null;
     error: string | null;
     totalTurns: number;
+    gifUrl: string | null;
   };
 };
 
