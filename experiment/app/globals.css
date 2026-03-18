@@ -551,7 +551,6 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-bottom: 8px;
 }
 
 .turn-timeline-empty {

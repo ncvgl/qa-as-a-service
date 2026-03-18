@@ -198,6 +198,9 @@ export default function Home() {
       if (data.startedAt && data.finishedAt) {
         setTotalDurationMs(new Date(data.finishedAt).getTime() - new Date(data.startedAt).getTime());
       }
+
+      // Scroll to bottom after render
+      setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 100);
     } catch { /* ignore */ }
   }, []);
 
