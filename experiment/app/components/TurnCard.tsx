@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 
+const API_BASE = "http://localhost:4001";
+function resolveUrl(url: string): string {
+  if (!url) return url;
+  return url.startsWith("/") ? API_BASE + url : url;
+}
+
 type TurnStatus = "running" | "completed" | "stuck" | "error";
 
 type Turn = {
@@ -195,16 +201,16 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
           const allUrls: string[] = [];
           const labels: string[] = [];
           if (turn.inputScreenshotUrl) {
-            allUrls.push(turn.inputScreenshotUrl);
+            allUrls.push(resolveUrl(turn.inputScreenshotUrl));
             labels.push("Before");
           }
           const actionUrls = turn.actionScreenshotUrls ?? [];
           for (let i = 0; i < actionUrls.length; i++) {
-            allUrls.push(actionUrls[i]);
+            allUrls.push(resolveUrl(actionUrls[i]));
             labels.push(`After ${i + 1}`);
           }
           if (turn.resultScreenshotUrl && actionUrls.length === 0) {
-            allUrls.push(turn.resultScreenshotUrl);
+            allUrls.push(resolveUrl(turn.resultScreenshotUrl));
             labels.push("After");
           }
           return (
