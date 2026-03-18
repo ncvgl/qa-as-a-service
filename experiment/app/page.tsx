@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import PromptBar from "./components/PromptBar";
 import RunOverview from "./components/RunOverview";
 import TurnTimeline from "./components/TurnTimeline";
@@ -65,22 +65,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"live" | "history">("live");
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [historyPrompt, setHistoryPrompt] = useState<string | null>(null);
-  const [pendingScroll, setPendingScroll] = useState(false);
-  const appBodyRef = useRef<HTMLDivElement>(null);
-
   const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
-
-  // Scroll to bottom after historical run content renders.
-  // We scroll multiple times because lazy-loaded images keep expanding the page.
-  useEffect(() => {
-    if (!pendingScroll || turns.length === 0) return;
-    setPendingScroll(false);
-    const scroll = () => appBodyRef.current?.scrollIntoView({ block: "end" });
-    const t1 = setTimeout(scroll, 100);
-    const t2 = setTimeout(scroll, 500);
-    const t3 = setTimeout(scroll, 1500);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [pendingScroll, turns]);
 
   const resetLiveState = useCallback(() => {
     setTurns([]);
@@ -212,8 +197,8 @@ export default function Home() {
         setTotalDurationMs(new Date(data.finishedAt).getTime() - new Date(data.startedAt).getTime());
       }
 
-      // Trigger scroll after React renders the turns
-      setPendingScroll(true);
+      // Scroll to top to show the Overview block
+      window.scrollTo({ top: 0 });
     } catch { /* ignore */ }
   }, []);
 
@@ -274,7 +259,6 @@ export default function Home() {
               frames={buildFrameUrls(turns)}
             />
           )}
-          <div ref={appBodyRef} />
         </div>
       </div>
     </div>
