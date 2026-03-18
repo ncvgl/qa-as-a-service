@@ -94,7 +94,6 @@ export default function RunHistory({ activeRunId, selectedRunId, onSelectRun, on
               {!run.verdict && run.state === "stuck" && (
                 <span className="run-history-verdict verdict-agent_failure">STUCK</span>
               )}
-              <span className="run-history-meta">{run.totalTurns}t</span>
               <span className="run-history-time">{timeAgo(run.startedAt)}</span>
             </div>
             <div className="run-history-prompt">{run.prompt}</div>
