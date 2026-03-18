@@ -61,11 +61,12 @@ export type ScreenshotResult = {
   url: string;
 };
 
-/** Draw a classic black mouse pointer with white border on a PNG buffer.
- *  The tip of the arrow is at (cx, cy). */
+/** Draw a classic mouse pointer (pink/purple fill, white border) on a PNG buffer.
+ *  The tip of the arrow is at (cx, cy). Rendered at 2x scale for visibility. */
 function drawCursorOnPng(pngBuf: Buffer, cx: number, cy: number): Buffer {
   const img = PNG.sync.read(pngBuf);
   const { width, height, data } = img;
+  const S = 2; // scale factor
 
   const setPixel = (px: number, py: number, r: number, g: number, b: number, a: number) => {
     if (px < 0 || py < 0 || px >= width || py >= height) return;
@@ -77,87 +78,61 @@ function drawCursorOnPng(pngBuf: Buffer, cx: number, cy: number): Buffer {
     data[idx + 3] = Math.max(data[idx + 3], a);
   };
 
-  // Classic arrow cursor shape (tip at 0,0 pointing down-right)
-  // Each row: [startX, endX] pairs defining filled pixels at that Y offset
-  // White border (outline)
-  const outline: [number, number][] = [
-    [0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7],
-    [0, 8], [0, 9], [0, 10], [0, 11], [0, 12],
-    [1, 1], [1, 12],
-    [2, 2], [2, 11],
-    [3, 3], [3, 10],
-    [4, 4], [4, 9],
-    [5, 5], [5, 8],
-    [6, 6], [6, 9],
-    [7, 7], [7, 10],
-    [8, 1], [8, 8], [8, 11],
-    [9, 1], [9, 2], [9, 9], [9, 12],
-    [10, 2], [10, 3], [10, 10], [10, 13],
-    [11, 3], [11, 11], [11, 13],
-    [12, 4], [12, 12], [12, 13],
-    [13, 5],
+  const fillBlock = (bx: number, by: number, r: number, g: number, b: number, a: number) => {
+    for (let dy = 0; dy < S; dy++) {
+      for (let dx = 0; dx < S; dx++) {
+        setPixel(bx + dx, by + dy, r, g, b, a);
+      }
+    }
+  };
+
+  // Cursor scanline rows: y -> [x0, x1] inclusive, fill = true for interior
+  const rows: Array<{ y: number; x0: number; x1: number; fill: boolean }> = [
+    // White outline (drawn first)
+    { y: 0, x0: 0, x1: 0, fill: false },
+    { y: 1, x0: 0, x1: 1, fill: false },
+    { y: 2, x0: 0, x1: 2, fill: false },
+    { y: 3, x0: 0, x1: 3, fill: false },
+    { y: 4, x0: 0, x1: 4, fill: false },
+    { y: 5, x0: 0, x1: 5, fill: false },
+    { y: 6, x0: 0, x1: 6, fill: false },
+    { y: 7, x0: 0, x1: 7, fill: false },
+    { y: 8, x0: 0, x1: 8, fill: false },
+    { y: 9, x0: 0, x1: 9, fill: false },
+    { y: 10, x0: 0, x1: 10, fill: false },
+    { y: 11, x0: 0, x1: 11, fill: false },
+    { y: 12, x0: 0, x1: 5, fill: false },
+    { y: 13, x0: 0, x1: 3, fill: false },
+    { y: 14, x0: 0, x1: 2, fill: false },
+    { y: 15, x0: 0, x1: 1, fill: false },
+    { y: 16, x0: 0, x1: 0, fill: false },
+    // Pink/purple fill (drawn on top)
+    { y: 1, x0: 1, x1: 1, fill: true },
+    { y: 2, x0: 1, x1: 1, fill: true },
+    { y: 3, x0: 1, x1: 2, fill: true },
+    { y: 4, x0: 1, x1: 3, fill: true },
+    { y: 5, x0: 1, x1: 4, fill: true },
+    { y: 6, x0: 1, x1: 5, fill: true },
+    { y: 7, x0: 1, x1: 6, fill: true },
+    { y: 8, x0: 1, x1: 7, fill: true },
+    { y: 9, x0: 1, x1: 8, fill: true },
+    { y: 10, x0: 1, x1: 9, fill: true },
+    { y: 11, x0: 1, x1: 4, fill: true },
+    { y: 12, x0: 1, x1: 2, fill: true },
+    { y: 13, x0: 1, x1: 1, fill: true },
   ];
 
-  // Black fill (interior)
-  const fill: [number, number][] = [
-    [1, 1],
-    [2, 2], [2, 2],
-    [3, 3], [3, 3],
-    [4, 4], [4, 4],
-    [5, 5], [5, 5],
-    [6, 6], [6, 6],
-    [7, 7], [7, 7],
-    [8, 8], [8, 8],
-  ];
-
-  // Draw using scanline fills for cleaner look
-  // Row definitions: y-offset -> [xStart, xEnd] inclusive
-  const cursorRows: Array<{ y: number; x0: number; x1: number; black: boolean }> = [
-    // White outline
-    { y: 0, x0: 0, x1: 0, black: false },
-    { y: 1, x0: 0, x1: 1, black: false },
-    { y: 2, x0: 0, x1: 2, black: false },
-    { y: 3, x0: 0, x1: 3, black: false },
-    { y: 4, x0: 0, x1: 4, black: false },
-    { y: 5, x0: 0, x1: 5, black: false },
-    { y: 6, x0: 0, x1: 6, black: false },
-    { y: 7, x0: 0, x1: 7, black: false },
-    { y: 8, x0: 0, x1: 8, black: false },
-    { y: 9, x0: 0, x1: 9, black: false },
-    { y: 10, x0: 0, x1: 10, black: false },
-    { y: 11, x0: 0, x1: 11, black: false },
-    { y: 12, x0: 0, x1: 5, black: false },
-    { y: 13, x0: 0, x1: 3, black: false },
-    { y: 14, x0: 0, x1: 2, black: false },
-    { y: 15, x0: 0, x1: 1, black: false },
-    { y: 16, x0: 0, x1: 0, black: false },
-    // Black fill
-    { y: 1, x0: 1, x1: 1, black: true },
-    { y: 2, x0: 1, x1: 1, black: true },
-    { y: 3, x0: 1, x1: 2, black: true },
-    { y: 4, x0: 1, x1: 3, black: true },
-    { y: 5, x0: 1, x1: 4, black: true },
-    { y: 6, x0: 1, x1: 5, black: true },
-    { y: 7, x0: 1, x1: 6, black: true },
-    { y: 8, x0: 1, x1: 7, black: true },
-    { y: 9, x0: 1, x1: 8, black: true },
-    { y: 10, x0: 1, x1: 9, black: true },
-    { y: 11, x0: 1, x1: 4, black: true },
-    { y: 12, x0: 1, x1: 2, black: true },
-    { y: 13, x0: 1, x1: 1, black: true },
-  ];
-
-  // Draw white first, then black on top
-  for (const row of cursorRows) {
-    if (row.black) continue;
+  // Draw white outline first, then pink fill on top — all at 2x scale
+  for (const row of rows) {
+    if (row.fill) continue;
     for (let x = row.x0; x <= row.x1; x++) {
-      setPixel(cx + x, cy + row.y, 255, 255, 255, 255);
+      fillBlock(cx + x * S, cy + row.y * S, 255, 255, 255, 255);
     }
   }
-  for (const row of cursorRows) {
-    if (!row.black) continue;
+  for (const row of rows) {
+    if (!row.fill) continue;
     for (let x = row.x0; x <= row.x1; x++) {
-      setPixel(cx + x, cy + row.y, 0, 0, 0, 255);
+      fillBlock(cx + x * S, cy + row.y * S, 190, 60, 200, 255);
     }
   }
 
