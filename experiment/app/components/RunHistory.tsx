@@ -89,7 +89,7 @@ export default function RunHistory({ activeRunId, selectedRunId, onSelectRun, on
                 </span>
               )}
               {!run.verdict && run.state === "failed" && (
-                <span className="run-history-verdict verdict-agent_failure">FAIL</span>
+                <span className="run-history-verdict verdict-platform_error">FAIL</span>
               )}
               {!run.verdict && run.state === "stuck" && (
                 <span className="run-history-verdict verdict-agent_failure">STUCK</span>
