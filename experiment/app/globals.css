@@ -842,13 +842,10 @@ html, body {
 /* Task prompt gets blue left border */
 .turn-actions-task li {
   border-left: 3px solid var(--accent-blue, #3b82f6);
-  font-family: inherit;
 }
 
 .turn-actions-task li code {
-  font-family: inherit;
   white-space: pre-wrap;
-  line-height: 1.5;
 }
 
 .turn-section-label-task {
