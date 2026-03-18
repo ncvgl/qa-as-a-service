@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import PromptBar from "./components/PromptBar";
 import RunStatus from "./components/RunStatus";
 import RunSummary from "./components/RunSummary";
@@ -66,8 +66,20 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"live" | "history">("live");
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [historyPrompt, setHistoryPrompt] = useState<string | null>(null);
+  const [pendingScroll, setPendingScroll] = useState(false);
+  const appBodyRef = useRef<HTMLDivElement>(null);
 
   const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
+
+  // Scroll to bottom after historical run content renders
+  useEffect(() => {
+    if (pendingScroll && turns.length > 0) {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      });
+      setPendingScroll(false);
+    }
+  }, [pendingScroll, turns]);
 
   const resetLiveState = useCallback(() => {
     setTurns([]);
@@ -199,8 +211,8 @@ export default function Home() {
         setTotalDurationMs(new Date(data.finishedAt).getTime() - new Date(data.startedAt).getTime());
       }
 
-      // Scroll to bottom after render
-      setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 100);
+      // Trigger scroll after React renders the turns
+      setPendingScroll(true);
     } catch { /* ignore */ }
   }, []);
 
