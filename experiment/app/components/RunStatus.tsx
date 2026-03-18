@@ -42,27 +42,39 @@ export default function RunStatus({
 }: Props) {
   const isFinished = state === "completed" || state === "failed" || state === "stuck";
 
+  // Determine the badge to show for finished runs
+  const badgeClass = verdict
+    ? `verdict-${verdict}`
+    : state === "failed"
+      ? "verdict-platform_error"
+      : state === "stuck"
+        ? "verdict-agent_failure"
+        : "";
+  const badgeLabel = verdict
+    ? (VERDICT_LABELS[verdict] ?? verdict)
+    : state === "failed"
+      ? "FAIL"
+      : state === "stuck"
+        ? "STUCK"
+        : "";
+
   return (
-    <div>
-      <div className={`run-status ${state}`}>
-        <span className="dot" />
+    <div className={`run-status ${state}`}>
+      <span className="dot" />
+      {isFinished && badgeLabel ? (
+        <>
+          <span className={`verdict-badge ${badgeClass}`}>{badgeLabel}</span>
+          <span>
+            {currentTurn} turn{currentTurn !== 1 ? "s" : ""}
+            {totalDurationMs > 0 && ` in ${formatDuration(totalDurationMs)}`}
+          </span>
+        </>
+      ) : (
         <span>
           {LABELS[state]}
           {state === "running" && ` — Turn ${currentTurn} of ${maxTurns}`}
-          {isFinished &&
-            currentTurn > 0 &&
-            ` — ${currentTurn} turn${currentTurn !== 1 ? "s" : ""}`}
-          {totalDurationMs > 0 && ` in ${formatDuration(totalDurationMs)}`}
         </span>
-
-        {/* Verdict badge (brief — details are in RunSummary at the bottom) */}
-        {verdict && (
-          <span className={`verdict-badge verdict-${verdict}`}>
-            {VERDICT_LABELS[verdict] ?? verdict}
-          </span>
-        )}
-      </div>
-
+      )}
     </div>
   );
 }
