@@ -10,7 +10,7 @@ const FPS = 6;
 const FRAME_INTERVAL = Math.round(1000 / FPS);
 
 export default function FramePlayer({ frames }: Props) {
-  const [currentFrame, setCurrentFrame] = useState(0);
+  const [currentFrame, setCurrentFrame] = useState(Math.min(2, frames.length - 1));
   const [playing, setPlaying] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
