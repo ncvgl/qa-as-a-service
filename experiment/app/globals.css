@@ -170,17 +170,6 @@ html, body {
   letter-spacing: 0.3px;
 }
 
-.history-prompt {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
-  font-size: 14px;
-  color: var(--text-primary);
-  line-height: 1.5;
-  margin-bottom: 8px;
-}
-
 .run-history-prompt {
   font-size: 12px;
   color: var(--text-primary);
@@ -827,6 +816,27 @@ html, body {
   border-left: 3px solid var(--accent-purple);
 }
 
+/* Model reasoning gets purple left border */
+.turn-actions-reasoning li {
+  border-left: 3px solid var(--accent-purple);
+}
+
+/* Task prompt gets blue left border */
+.turn-actions-task li {
+  border-left: 3px solid var(--accent-blue, #3b82f6);
+  font-family: inherit;
+}
+
+.turn-actions-task li code {
+  font-family: inherit;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.turn-section-label-task {
+  color: var(--accent-blue, #3b82f6);
+}
+
 /* Program executed actions get green left border */
 .turn-actions-exec li {
   border-left: 3px solid var(--accent-green);
@@ -847,15 +857,6 @@ html, body {
 }
 
 /* Model reasoning summary */
-.turn-reasoning-text {
-  background: rgba(107, 63, 160, 0.08);
-  border-left: 3px solid var(--accent-purple);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 8px 14px;
-  font-size: 13px;
-  color: var(--text-primary);
-  line-height: 1.5;
-}
 
 /* Raw output toggle button */
 .turn-raw-toggle {

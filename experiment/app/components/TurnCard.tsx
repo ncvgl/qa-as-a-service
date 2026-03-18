@@ -155,7 +155,14 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
         {reasoning && (
           <div className="turn-section">
             <span className="turn-section-label turn-section-label-model">Model Reasoning</span>
-            <div className="turn-reasoning-text">{reasoning}</div>
+            <ul className="turn-actions-list turn-actions-reasoning">
+              {reasoning.split("\n").filter(Boolean).map((line, i) => (
+                <li key={i}>
+                  <span className="turn-action-index">{i + 1}</span>
+                  <code>{line}</code>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 

@@ -73,12 +73,14 @@ export default function Home() {
 
   // Scroll to bottom after historical run content renders
   useEffect(() => {
-    if (pendingScroll && turns.length > 0) {
+    if (!pendingScroll || turns.length === 0) return;
+    setPendingScroll(false);
+    // Double rAF ensures React has committed + browser has painted
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
       });
-      setPendingScroll(false);
-    }
+    });
   }, [pendingScroll, turns]);
 
   const resetLiveState = useCallback(() => {
@@ -269,7 +271,15 @@ export default function Home() {
                 totalDurationMs={totalDurationMs}
               />
               {historyPrompt && (
-                <div className="history-prompt">{historyPrompt}</div>
+                <div className="turn-section">
+                  <span className="turn-section-label turn-section-label-task">Task</span>
+                  <ul className="turn-actions-list turn-actions-task">
+                    <li>
+                      <span className="turn-action-index">1</span>
+                      <code>{historyPrompt}</code>
+                    </li>
+                  </ul>
+                </div>
               )}
             </>
           )}
