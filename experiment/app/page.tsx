@@ -75,12 +75,11 @@ export default function Home() {
   useEffect(() => {
     if (!pendingScroll || turns.length === 0) return;
     setPendingScroll(false);
-    // Double rAF ensures React has committed + browser has painted
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-      });
-    });
+    // Wait for React to render the turns, then scroll
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight });
+    }, 300);
+    return () => clearTimeout(timer);
   }, [pendingScroll, turns]);
 
   const resetLiveState = useCallback(() => {
