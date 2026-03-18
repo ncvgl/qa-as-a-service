@@ -481,12 +481,12 @@ html, body {
 
 /* Frame Player */
 .frame-player {
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
 }
 
 .frame-player-viewport {
   position: relative;
-  background: var(--bg-surface, #1a1a2e);
+  background: var(--bg-secondary);
   max-height: 546px;
   display: flex;
   align-items: center;
