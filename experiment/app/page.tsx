@@ -231,23 +231,36 @@ export default function Home() {
 
         <div className="app-body">
           {viewMode === "live" ? (
-            <PromptBar
-              onRun={handleRun}
-              onStop={handleStop}
-              isRunning={runState === "running"}
-            />
-          ) : historyPrompt && (
-            <div className="history-prompt">{historyPrompt}</div>
+            <>
+              <PromptBar
+                onRun={handleRun}
+                onStop={handleStop}
+                isRunning={runState === "running"}
+              />
+              <RunStatus
+                state={runState}
+                currentTurn={currentTurn}
+                maxTurns={maxTurns}
+                verdict={verdict}
+                error={error}
+                totalDurationMs={totalDurationMs}
+              />
+            </>
+          ) : (
+            <>
+              <RunStatus
+                state={runState}
+                currentTurn={currentTurn}
+                maxTurns={maxTurns}
+                verdict={verdict}
+                error={error}
+                totalDurationMs={totalDurationMs}
+              />
+              {historyPrompt && (
+                <div className="history-prompt">{historyPrompt}</div>
+              )}
+            </>
           )}
-
-          <RunStatus
-            state={runState}
-            currentTurn={currentTurn}
-            maxTurns={maxTurns}
-            verdict={verdict}
-            error={error}
-            totalDurationMs={totalDurationMs}
-          />
 
           <TurnTimeline turns={turns} />
 
