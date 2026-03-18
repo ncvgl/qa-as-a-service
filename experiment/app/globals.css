@@ -170,6 +170,17 @@ html, body {
   letter-spacing: 0.3px;
 }
 
+.history-prompt {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
 .run-history-prompt {
   font-size: 12px;
   color: var(--text-primary);

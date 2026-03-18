@@ -6,7 +6,7 @@ type Props = {
   frames: string[]; // ordered screenshot URLs
 };
 
-const FPS = 3;
+const FPS = 6;
 const FRAME_INTERVAL = Math.round(1000 / FPS);
 
 export default function FramePlayer({ frames }: Props) {

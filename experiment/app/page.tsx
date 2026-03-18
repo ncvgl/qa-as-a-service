@@ -65,6 +65,7 @@ export default function Home() {
   // History state
   const [viewMode, setViewMode] = useState<"live" | "history">("live");
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [historyPrompt, setHistoryPrompt] = useState<string | null>(null);
 
   const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
 
@@ -184,6 +185,7 @@ export default function Home() {
 
       setViewMode("history");
       setSelectedRunId(id);
+      setHistoryPrompt(data.prompt ?? null);
       setTurns(data.turns ?? []);
       setRunState(data.state);
       setFinalMessage(data.finalMessage ?? null);
@@ -225,12 +227,14 @@ export default function Home() {
         </header>
 
         <div className="app-body">
-          {viewMode === "live" && (
+          {viewMode === "live" ? (
             <PromptBar
               onRun={handleRun}
               onStop={handleStop}
               isRunning={runState === "running"}
             />
+          ) : historyPrompt && (
+            <div className="history-prompt">{historyPrompt}</div>
           )}
 
           <RunStatus
