@@ -71,15 +71,16 @@ export default function Home() {
 
   const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
 
-  // Scroll to bottom after historical run content renders
+  // Scroll to bottom after historical run content renders.
+  // We scroll multiple times because lazy-loaded images keep expanding the page.
   useEffect(() => {
     if (!pendingScroll || turns.length === 0) return;
     setPendingScroll(false);
-    // Wait for React to render the turns, then scroll
-    const timer = setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight });
-    }, 300);
-    return () => clearTimeout(timer);
+    const scroll = () => appBodyRef.current?.scrollIntoView({ block: "end" });
+    const t1 = setTimeout(scroll, 100);
+    const t2 = setTimeout(scroll, 500);
+    const t3 = setTimeout(scroll, 1500);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [pendingScroll, turns]);
 
   const resetLiveState = useCallback(() => {
@@ -298,6 +299,7 @@ export default function Home() {
               totalTurns={currentTurn}
             />
           )}
+          <div ref={appBodyRef} />
         </div>
       </div>
     </div>
