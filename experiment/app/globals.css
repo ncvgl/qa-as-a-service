@@ -410,6 +410,24 @@ html, body {
 
 /* ── Run Summary (bottom of page) ── */
 
+/* ── Run Overview block ── */
+
+.run-overview {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.run-overview .run-status {
+  border-radius: 0;
+}
+
+.run-overview-task {
+  padding: 12px 16px 0;
+}
+
 .run-summary {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);

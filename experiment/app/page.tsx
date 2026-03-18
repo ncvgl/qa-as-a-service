@@ -2,8 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import PromptBar from "./components/PromptBar";
-import RunStatus from "./components/RunStatus";
-import RunSummary from "./components/RunSummary";
+import RunOverview from "./components/RunOverview";
 import TurnTimeline from "./components/TurnTimeline";
 import RunHistory from "./components/RunHistory";
 
@@ -244,59 +243,35 @@ export default function Home() {
         </header>
 
         <div className="app-body">
-          {viewMode === "live" ? (
-            <>
-              <PromptBar
-                onRun={handleRun}
-                onStop={handleStop}
-                isRunning={runState === "running"}
-              />
-              <RunStatus
-                state={runState}
-                currentTurn={currentTurn}
-                maxTurns={maxTurns}
-                verdict={verdict}
-                error={error}
-                totalDurationMs={totalDurationMs}
-              />
-            </>
-          ) : (
-            <>
-              <RunStatus
-                state={runState}
-                currentTurn={currentTurn}
-                maxTurns={maxTurns}
-                verdict={verdict}
-                error={error}
-                totalDurationMs={totalDurationMs}
-              />
-              {historyPrompt && (
-                <div className="turn-section">
-                  <span className="turn-section-label turn-section-label-task">Task</span>
-                  <ul className="turn-actions-list turn-actions-task">
-                    <li>
-                      <span className="turn-action-index">1</span>
-                      <code>{historyPrompt}</code>
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </>
+          {viewMode === "live" && (
+            <PromptBar
+              onRun={handleRun}
+              onStop={handleStop}
+              isRunning={runState === "running"}
+            />
           )}
+
+          {/* Overview block — top */}
+          <RunOverview
+            state={runState}
+            verdict={verdict}
+            currentTurn={currentTurn}
+            totalDurationMs={totalDurationMs}
+            prompt={viewMode === "history" ? historyPrompt : null}
+            frames={isFinished ? buildFrameUrls(turns) : []}
+          />
 
           <TurnTimeline turns={turns} />
 
-          {/* Run summary with frame player at the bottom after all turns */}
+          {/* Overview block — bottom (only when finished with turns) */}
           {isFinished && turns.length > 0 && (
-            <RunSummary
+            <RunOverview
               state={runState}
               verdict={verdict}
-              verdictSummary={verdictSummary}
-              verdictDetails={verdictDetails}
-              error={error}
-              frames={buildFrameUrls(turns)}
+              currentTurn={currentTurn}
               totalDurationMs={totalDurationMs}
-              totalTurns={currentTurn}
+              prompt={viewMode === "history" ? historyPrompt : null}
+              frames={buildFrameUrls(turns)}
             />
           )}
           <div ref={appBodyRef} />

@@ -158,7 +158,6 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
             <ul className="turn-actions-list turn-actions-reasoning">
               {reasoning.split("\n").filter(Boolean).map((line, i) => (
                 <li key={i}>
-                  <span className="turn-action-index">{i + 1}</span>
                   <code>{line}</code>
                 </li>
               ))}
