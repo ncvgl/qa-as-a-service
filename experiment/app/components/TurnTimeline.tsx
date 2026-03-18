@@ -26,6 +26,7 @@ type Turn = {
 
 type Props = {
   turns: Turn[];
+  autoScroll?: boolean;
 };
 
 type LightboxState = {
@@ -33,16 +34,16 @@ type LightboxState = {
   index: number;
 } | null;
 
-export default function TurnTimeline({ turns }: Props) {
+export default function TurnTimeline({ turns, autoScroll = true }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [lightbox, setLightbox] = useState<LightboxState>(null);
 
-  // Auto-scroll to bottom on new turns
+  // Auto-scroll to bottom on new turns (only during live runs)
   useEffect(() => {
-    if (bottomRef.current) {
+    if (autoScroll && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
-  }, [turns.length]);
+  }, [turns.length, autoScroll]);
 
   const handleScreenshotClick = useCallback((urls: string[], index: number) => {
     setLightbox({ urls, index });

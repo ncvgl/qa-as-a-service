@@ -246,7 +246,7 @@ export default function Home() {
             frames={isFinished ? buildFrameUrls(turns) : []}
           />
 
-          <TurnTimeline turns={turns} />
+          <TurnTimeline turns={turns} autoScroll={viewMode === "live"} />
 
           {/* Overview block — bottom (only when finished with turns) */}
           {isFinished && turns.length > 0 && (
