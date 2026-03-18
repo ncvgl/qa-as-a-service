@@ -909,7 +909,6 @@ html, body {
 .turn-raw-output {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-left: 3px solid var(--accent-purple);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   font-size: 12px;

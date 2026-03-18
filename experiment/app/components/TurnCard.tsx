@@ -129,7 +129,7 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
             className="turn-raw-toggle"
             onClick={() => setInputExpanded((prev) => !prev)}
           >
-            {inputExpanded ? "▾" : "▸"} Input sent to API
+            {inputExpanded ? "▾" : "▸"} API Input
           </button>
           {inputExpanded && (
             <div className="turn-input-text">{turn.inputText}</div>
@@ -143,7 +143,7 @@ export default function TurnCard({ turn, onScreenshotClick }: Props) {
               className="turn-raw-toggle"
               onClick={() => setRawExpanded((prev) => !prev)}
             >
-              {rawExpanded ? "▾" : "▸"} Raw API output
+              {rawExpanded ? "▾" : "▸"} API Output
             </button>
             {rawExpanded && (
               <pre className="turn-raw-output">{JSON.stringify(turn.rawModelOutput, null, 2)}</pre>
