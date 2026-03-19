@@ -40,6 +40,8 @@ function broadcast(runId: string, event: SSEEvent) {
   } else if (event.type === "run_complete") {
     stored.state = event.data.state;
     stored.finalMessage = event.data.finalMessage;
+    stored.verdict = event.data.verdict ?? null;
+    stored.verdictSummary = event.data.verdictSummary ?? null;
     stored.error = event.data.error;
     stored.finishedAt = new Date().toISOString();
   }
@@ -67,6 +69,8 @@ app.post<{
     startedAt: new Date().toISOString(),
     finishedAt: null,
     finalMessage: null,
+    verdict: null,
+    verdictSummary: null,
     maxTurns,
     error: null,
   };
@@ -204,6 +208,23 @@ app.get("/api/runs", async (_request, reply) => {
     } catch { /* skip malformed files */ }
   }
 
+  // Include in-memory running runs
+  for (const [id, run] of runs) {
+    if (run.state === "running" && !metas.find((m) => m.id === id)) {
+      metas.push({
+        id: run.id,
+        prompt: run.prompt,
+        state: run.state,
+        verdict: null,
+        verdictSummary: null,
+        startedAt: run.startedAt,
+        finishedAt: null,
+        totalTurns: run.turns.length,
+        error: null,
+      });
+    }
+  }
+
   // Sort by startedAt descending (most recent first)
   metas.sort((a, b) => (b.startedAt ?? "").localeCompare(a.startedAt ?? ""));
   return reply.send(metas);
@@ -223,6 +244,12 @@ app.get<{
     } catch {
       return reply.status(500).send({ error: "Failed to parse run data" });
     }
+  }
+
+  // Fall back to in-memory data for running runs
+  const inMemory = runs.get(id);
+  if (inMemory) {
+    return reply.send(inMemory);
   }
 
   return reply.status(404).send({ error: "Run not found" });

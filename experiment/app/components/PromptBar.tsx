@@ -96,7 +96,6 @@ export default function PromptBar({ onRun, onStop, isRunning }: Props) {
         <select
           value={preset}
           onChange={(e) => handlePresetChange(e.target.value)}
-          disabled={isRunning}
         >
           {Object.entries(PRESET_LABELS).map(([key, label]) => (
             <option key={key} value={key}>
@@ -112,7 +111,6 @@ export default function PromptBar({ onRun, onStop, isRunning }: Props) {
           if (preset !== "custom") setPreset("custom");
         }}
         placeholder="Describe what the agent should do in the browser..."
-        disabled={isRunning}
         rows={3}
         onKeyDown={(e) => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !isRunning) {
@@ -122,30 +120,27 @@ export default function PromptBar({ onRun, onStop, isRunning }: Props) {
         }}
       />
       <div className="prompt-bar-actions">
-        {isRunning ? (
+        {isRunning && (
           <button className="btn btn-danger" onClick={onStop}>
             Stop
           </button>
-        ) : (
-          <>
-            <span
-              style={{
-                fontSize: 11,
-                color: "var(--text-muted)",
-                alignSelf: "center",
-              }}
-            >
-              Cmd+Enter to run
-            </span>
-            <button
-              className="btn btn-primary"
-              onClick={handleRun}
-              disabled={!prompt.trim()}
-            >
-              Run
-            </button>
-          </>
         )}
+        <span
+          style={{
+            fontSize: 11,
+            color: "var(--text-muted)",
+            alignSelf: "center",
+          }}
+        >
+          Cmd+Enter to run
+        </span>
+        <button
+          className="btn btn-primary"
+          onClick={handleRun}
+          disabled={!prompt.trim()}
+        >
+          Run
+        </button>
       </div>
     </div>
   );

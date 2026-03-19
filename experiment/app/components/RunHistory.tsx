@@ -58,7 +58,7 @@ export default function RunHistory({ activeRunId, selectedRunId, onSelectRun, on
   useEffect(() => {
     fetchRuns();
     // Refresh list when a run completes
-    const interval = setInterval(fetchRuns, 10_000);
+    const interval = setInterval(fetchRuns, 5_000);
     return () => clearInterval(interval);
   }, [fetchRuns]);
 
@@ -95,6 +95,9 @@ export default function RunHistory({ activeRunId, selectedRunId, onSelectRun, on
               )}
               {!run.verdict && run.state === "stuck" && (
                 <span className="run-history-verdict verdict-fail">FAIL</span>
+              )}
+              {run.state === "running" && (
+                <span className="run-history-verdict verdict-running">RUNNING</span>
               )}
               <span className="run-history-time">{timeAgo(run.startedAt)}</span>
             </div>

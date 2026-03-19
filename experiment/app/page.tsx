@@ -31,6 +31,19 @@ type Turn = {
   apiDurationMs: number;
 };
 
+type RunData = {
+  runState: RunState;
+  turns: Turn[];
+  prompt: string | null;
+  finalMessage: string | null;
+  verdict: Verdict;
+  verdictSummary: string | null;
+  verdictDetails: string | null;
+  error: string | null;
+  totalDurationMs: number;
+  startTime: number;
+};
+
 const API_BASE = "http://localhost:4001";
 
 function buildFrameUrls(turns: Turn[]): string[] {
@@ -47,59 +60,52 @@ function buildFrameUrls(turns: Turn[]): string[] {
   return frames;
 }
 
+function emptyRunData(): RunData {
+  return {
+    runState: "idle",
+    turns: [],
+    prompt: null,
+    finalMessage: null,
+    verdict: null,
+    verdictSummary: null,
+    verdictDetails: null,
+    error: null,
+    totalDurationMs: 0,
+    startTime: 0,
+  };
+}
+
 export default function Home() {
-  // Live run state
-  const [runState, setRunState] = useState<RunState>("idle");
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const [runId, setRunId] = useState<string | null>(null);
-  const [maxTurns] = useState(20);
-  const [finalMessage, setFinalMessage] = useState<string | null>(null);
-  const [verdict, setVerdict] = useState<Verdict>(null);
-  const [verdictSummary, setVerdictSummary] = useState<string | null>(null);
-  const [verdictDetails, setVerdictDetails] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [totalDurationMs, setTotalDurationMs] = useState<number>(0);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const runStartTimeRef = useRef<number>(0);
-
-  // History state
+  // Currently viewed run
+  const [viewedRunId, setViewedRunId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"live" | "history">("live");
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<string | null>(null);
-  const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
-  const displayedRunId = viewMode === "history" ? selectedRunId : runId;
-  const videoUrl = displayedRunId ? `${API_BASE}/api/run/${displayedRunId}/video` : null;
+  const [maxTurns] = useState(20);
 
-  const resetLiveState = useCallback(() => {
-    setTurns([]);
-    setRunState("idle");
-    setFinalMessage(null);
-    setVerdict(null);
-    setVerdictSummary(null);
-    setVerdictDetails(null);
-    setError(null);
-    setTotalDurationMs(0);
-    setPrompt(null);
+  // Displayed run state (for whichever run is currently viewed)
+  const [displayed, setDisplayed] = useState<RunData>(emptyRunData());
+
+  // Track all active run EventSources and their state
+  const activeRunsRef = useRef<Map<string, {
+    eventSource: EventSource;
+    data: RunData;
+  }>>(new Map());
+
+  // Helper to update displayed state if this run is currently viewed
+  const updateDisplayedIfViewed = useCallback((runId: string, updater: (d: RunData) => RunData) => {
+    const entry = activeRunsRef.current.get(runId);
+    if (entry) {
+      entry.data = updater(entry.data);
+    }
+    setViewedRunId((currentViewedId) => {
+      if (currentViewedId === runId) {
+        setDisplayed((prev) => updater(prev));
+      }
+      return currentViewedId;
+    });
   }, []);
 
   const handleRun = useCallback(
     async (prompt: string) => {
-      // Switch to live mode
-      setViewMode("live");
-      setSelectedRunId(null);
-
-      // Close any existing SSE connection
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-
-      // Reset state
-      resetLiveState();
-      setRunState("running");
-      setPrompt(prompt);
-      runStartTimeRef.current = Date.now();
-
       try {
         const res = await fetch(`${API_BASE}/api/run`, {
           method: "POST",
@@ -113,11 +119,29 @@ export default function Home() {
         }
 
         const { runId: id } = await res.json();
-        setRunId(id);
 
-        // Connect SSE directly to Fastify (Next.js proxy buffers SSE)
+        const runData: RunData = {
+          runState: "running",
+          turns: [],
+          prompt,
+          finalMessage: null,
+          verdict: null,
+          verdictSummary: null,
+          verdictDetails: null,
+          error: null,
+          totalDurationMs: 0,
+          startTime: Date.now(),
+        };
+
+        // Switch view to the new run
+        setViewMode("live");
+        setViewedRunId(id);
+        setDisplayed(runData);
+
+        // Connect SSE
         const es = new EventSource(`${API_BASE}/api/run/${id}/events`);
-        eventSourceRef.current = es;
+
+        activeRunsRef.current.set(id, { eventSource: es, data: runData });
 
         es.onmessage = (event) => {
           try {
@@ -125,25 +149,30 @@ export default function Home() {
 
             if (parsed.type === "turn") {
               const turn = parsed.data as Turn;
-              setTurns((prev) => {
-                const idx = prev.findIndex((t) => t.turn === turn.turn);
+              updateDisplayedIfViewed(id, (prev) => {
+                const idx = prev.turns.findIndex((t) => t.turn === turn.turn);
+                let newTurns: Turn[];
                 if (idx >= 0) {
-                  const next = [...prev];
-                  next[idx] = turn;
-                  return next;
+                  newTurns = [...prev.turns];
+                  newTurns[idx] = turn;
+                } else {
+                  newTurns = [...prev.turns, turn];
                 }
-                return [...prev, turn];
+                return { ...prev, turns: newTurns };
               });
             } else if (parsed.type === "run_complete") {
-              setRunState(parsed.data.state);
-              setFinalMessage(parsed.data.finalMessage);
-              setVerdict(parsed.data.verdict ?? null);
-              setVerdictSummary(parsed.data.verdictSummary ?? null);
-              setVerdictDetails(parsed.data.verdictDetails ?? null);
-              setError(parsed.data.error);
-              setTotalDurationMs(Date.now() - runStartTimeRef.current);
+              updateDisplayedIfViewed(id, (prev) => ({
+                ...prev,
+                runState: parsed.data.state,
+                finalMessage: parsed.data.finalMessage,
+                verdict: parsed.data.verdict ?? null,
+                verdictSummary: parsed.data.verdictSummary ?? null,
+                verdictDetails: parsed.data.verdictDetails ?? null,
+                error: parsed.data.error,
+                totalDurationMs: Date.now() - prev.startTime,
+              }));
               es.close();
-              eventSourceRef.current = null;
+              activeRunsRef.current.delete(id);
             }
           } catch {
             // ignore parse errors
@@ -152,77 +181,141 @@ export default function Home() {
 
         es.onerror = () => {
           es.close();
-          eventSourceRef.current = null;
-          // Only set failed if still running (not already completed)
-          setRunState((prev) =>
-            prev === "running" ? "fail" : prev,
-          );
+          updateDisplayedIfViewed(id, (prev) => ({
+            ...prev,
+            runState: prev.runState === "running" ? "fail" : prev.runState,
+          }));
+          activeRunsRef.current.delete(id);
         };
       } catch (err) {
-        setRunState("fail");
-        setError((err as Error).message);
+        setDisplayed((prev) => ({
+          ...prev,
+          runState: "fail",
+          error: (err as Error).message,
+        }));
       }
     },
-    [maxTurns, resetLiveState],
+    [maxTurns, updateDisplayedIfViewed],
   );
 
   const handleStop = useCallback(async () => {
-    if (runId) {
+    if (viewedRunId) {
       try {
-        await fetch(`${API_BASE}/api/run/${runId}/stop`, { method: "POST" });
-      } catch {
-        // ignore
+        await fetch(`${API_BASE}/api/run/${viewedRunId}/stop`, { method: "POST" });
+      } catch { /* ignore */ }
+      const entry = activeRunsRef.current.get(viewedRunId);
+      if (entry) {
+        entry.eventSource.close();
+        activeRunsRef.current.delete(viewedRunId);
       }
     }
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-    }
-  }, [runId]);
+  }, [viewedRunId]);
 
   const handleSelectRun = useCallback(async (id: string) => {
+    // If this is an active run we're tracking, switch to its live state
+    const active = activeRunsRef.current.get(id);
+    if (active) {
+      setViewMode("live");
+      setViewedRunId(id);
+      setDisplayed(active.data);
+      window.scrollTo({ top: 0 });
+      return;
+    }
+
+    // Otherwise fetch from server (completed or in-progress on another session)
     try {
       const res = await fetch(`${API_BASE}/api/run/${id}/data`);
       if (!res.ok) return;
       const data = await res.json();
 
-      setViewMode("history");
-      setSelectedRunId(id);
-      setPrompt(data.prompt ?? null);
-      setTurns(data.turns ?? []);
-      setRunState(data.state);
-      setFinalMessage(data.finalMessage ?? null);
-      setVerdict(data.verdict ?? null);
-      setVerdictSummary(data.verdictSummary ?? null);
-      setVerdictDetails(data.verdictDetails ?? null);
-      setError(data.error ?? null);
+      const isRunning = data.state === "running";
 
-      // Calculate duration from timestamps
-      if (data.startedAt && data.finishedAt) {
-        setTotalDurationMs(new Date(data.finishedAt).getTime() - new Date(data.startedAt).getTime());
+      const runData: RunData = {
+        runState: data.state,
+        turns: data.turns ?? [],
+        prompt: data.prompt ?? null,
+        finalMessage: data.finalMessage ?? null,
+        verdict: data.verdict ?? null,
+        verdictSummary: data.verdictSummary ?? null,
+        verdictDetails: data.verdictDetails ?? null,
+        error: data.error ?? null,
+        totalDurationMs: data.startedAt && data.finishedAt
+          ? new Date(data.finishedAt).getTime() - new Date(data.startedAt).getTime()
+          : 0,
+        startTime: data.startedAt ? new Date(data.startedAt).getTime() : 0,
+      };
+
+      setViewedRunId(id);
+      setDisplayed(runData);
+
+      if (isRunning) {
+        // Connect SSE for live updates
+        setViewMode("live");
+        const es = new EventSource(`${API_BASE}/api/run/${id}/events`);
+        activeRunsRef.current.set(id, { eventSource: es, data: runData });
+
+        es.onmessage = (event) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            if (parsed.type === "turn") {
+              const turn = parsed.data as Turn;
+              updateDisplayedIfViewed(id, (prev) => {
+                const idx = prev.turns.findIndex((t) => t.turn === turn.turn);
+                let newTurns: Turn[];
+                if (idx >= 0) {
+                  newTurns = [...prev.turns];
+                  newTurns[idx] = turn;
+                } else {
+                  newTurns = [...prev.turns, turn];
+                }
+                return { ...prev, turns: newTurns };
+              });
+            } else if (parsed.type === "run_complete") {
+              updateDisplayedIfViewed(id, (prev) => ({
+                ...prev,
+                runState: parsed.data.state,
+                finalMessage: parsed.data.finalMessage,
+                verdict: parsed.data.verdict ?? null,
+                verdictSummary: parsed.data.verdictSummary ?? null,
+                verdictDetails: parsed.data.verdictDetails ?? null,
+                error: parsed.data.error,
+                totalDurationMs: Date.now() - prev.startTime,
+              }));
+              es.close();
+              activeRunsRef.current.delete(id);
+            }
+          } catch { /* ignore */ }
+        };
+
+        es.onerror = () => {
+          es.close();
+          activeRunsRef.current.delete(id);
+        };
+      } else {
+        setViewMode("history");
       }
 
-      // Scroll to top to show the Overview block
       window.scrollTo({ top: 0 });
     } catch { /* ignore */ }
-  }, []);
+  }, [updateDisplayedIfViewed]);
 
   const handleNewRun = useCallback(() => {
     setViewMode("live");
-    setSelectedRunId(null);
-    // Don't reset if there's an active run
-    if (runState !== "running") {
-      resetLiveState();
-    }
-  }, [runState, resetLiveState]);
+    setViewedRunId(null);
+    setDisplayed(emptyRunData());
+  }, []);
 
+  const { runState, turns, prompt, verdict, verdictSummary, verdictDetails, error, totalDurationMs } = displayed;
+  const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
   const isFinished = runState === "completed" || runState === "fail" || runState === "stuck";
+  const videoUrl = viewedRunId ? `${API_BASE}/api/run/${viewedRunId}/video` : null;
+  const isViewingActiveRun = viewedRunId !== null && activeRunsRef.current.has(viewedRunId);
 
   return (
     <div className="app-layout">
       <RunHistory
-        activeRunId={runState === "running" ? runId : null}
-        selectedRunId={viewMode === "history" ? selectedRunId : runId}
+        activeRunId={null}
+        selectedRunId={viewedRunId}
         onSelectRun={handleSelectRun}
         onNewRun={handleNewRun}
       />
@@ -233,13 +326,11 @@ export default function Home() {
         </header>
 
         <div className="app-body">
-          {viewMode === "live" && (
-            <PromptBar
-              onRun={handleRun}
-              onStop={handleStop}
-              isRunning={runState === "running"}
-            />
-          )}
+          <PromptBar
+            onRun={handleRun}
+            onStop={handleStop}
+            isRunning={runState === "running" && isViewingActiveRun}
+          />
 
           {/* Overview block — top */}
           <RunOverview
