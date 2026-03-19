@@ -20,6 +20,38 @@ const PRESETS: Record<string, string> = {
 4. Upload any available file (or create a dummy text file if prompted).
 5. Verify the file appears in the channel.
 6. Log out.`,
+  slawk_channel_create: `Go to slawk.ncvgl.com and log in with email demo@slawk.dev and password tryme123. Then:
+1. Create a new public channel called "test-channel-qa"
+2. Set the channel description to "Automated QA testing channel"
+3. Verify you land inside the newly created channel
+4. Send a message saying "Channel created successfully"
+5. Log out.`,
+  slawk_edit_profile: `Go to slawk.ncvgl.com and log in with email demo@slawk.dev and password tryme123. Then:
+1. Open your user profile settings
+2. Change the display name to "QA Bot"
+3. Set the status to "Testing in progress"
+4. Save the changes
+5. Verify the updated name or status is visible
+6. Log out.`,
+  slawk_thread_reply: `Go to slawk.ncvgl.com and log in with email demo@slawk.dev and password tryme123. Then:
+1. Open the "general" channel
+2. Find the most recent message in the channel
+3. Click on it to open a thread
+4. Reply in the thread with "Automated thread reply from QA agent"
+5. Verify the reply appears in the thread
+6. Log out.`,
+  slawk_duplicate_msg_bug: `Go to slawk.ncvgl.com and log in with email demo@slawk.dev and password tryme123. Then:
+1. Open the "general" channel
+2. Send a unique message: "duplicate-check-test"
+3. IMMEDIATELY after sending, carefully look at the message list and count how many times "duplicate-check-test" appears. Note this count.
+4. Press Cmd+R to refresh the page
+5. Wait for the page to fully reload and log back in if needed
+6. Open the "general" channel again
+7. Count how many times "duplicate-check-test" appears now
+
+EXPECTED BEHAVIOR: The message should appear exactly once both before and after refresh.
+BUG TO CHECK: If the message appears MORE than once before refresh but only once after refresh, that is a duplicate message rendering bug — report as platform_bug.
+If the message appears exactly once both times, the behavior is correct — report as pass.`,
 };
 
 const PRESET_LABELS: Record<string, string> = {
@@ -28,6 +60,10 @@ const PRESET_LABELS: Record<string, string> = {
   slawk_dm: "Slawk DM Flow",
   slawk_login: "Slawk Login Flow",
   slawk_file_upload: "Slawk File Upload",
+  slawk_channel_create: "Slawk Channel Create",
+  slawk_edit_profile: "Slawk Edit Profile",
+  slawk_thread_reply: "Slawk Thread Reply",
+  slawk_duplicate_msg_bug: "Slawk Duplicate Msg Bug",
   wikipedia: "Wikipedia Lookup",
 };
 
