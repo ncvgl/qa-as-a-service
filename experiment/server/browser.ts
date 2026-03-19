@@ -106,13 +106,10 @@ function drawCursorOnPng(pngBuf: Buffer, cx: number, cy: number): Buffer {
     "WBBBBBBBBBB",
     "WBBBBBBBBBBB",
     "WBBBBBBWWWWW",
-    "WBBBBBBW",
-    "WBBWWBBBW",
-    "WBWSWWBBBW",
-    "WWSSSWWBBBW",
-    "WSSSSSWWBBBW",
-    "SSSSSSSSWBBW",
-    "SSSSSSSSWWW",
+    "WBBBBWW",
+    "WBBBW",
+    "WBBW",
+    "WWW",
   ];
   const SCALE = 2;
   // Draw white outline first, then black fill
