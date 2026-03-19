@@ -89,39 +89,55 @@ function drawCursorOnPng(pngBuf: Buffer, cx: number, cy: number): Buffer {
     }
   }
 
-  // --- Small black arrow cursor, tip at (cx, cy) ---
-  // Classic top-left arrow shape, 12px tall
-  const cursorShape = [
-    [0, 0],
-    [0, 1],
-    [0, 2], [1, 2],
-    [0, 3], [1, 3],
-    [0, 4], [1, 4], [2, 4],
-    [0, 5], [1, 5], [2, 5],
-    [0, 6], [1, 6], [2, 6], [3, 6],
-    [0, 7], [1, 7], [2, 7], [3, 7],
-    [0, 8], [1, 8], [2, 8], [3, 8], [4, 8],
-    [0, 9], [1, 9], [2, 9], [3, 9], [4, 9],
-    [0, 10], [1, 10], [2, 10], [3, 10], [4, 10], [5, 10],
-    [0, 11], [1, 11], [2, 11], [3, 11], [4, 11], [5, 11],
-    [0, 12], [1, 12], [2, 12],
-    [0, 13], [1, 13],
-    [3, 12], [4, 12],
-    [3, 13], [4, 13], [5, 13],
-    [5, 14], [6, 14],
-    [6, 15], [7, 15],
+  // --- macOS-style arrow cursor, tip at (cx, cy) ---
+  // Each row is [startCol, endCol] pairs defining filled spans.
+  // 'B' = black fill, 'W' = white outline. Drawn at 2x scale.
+  // Classic pointer: 12x19 template, rendered at 2x = 24x38
+  const template: string[] = [
+    "WB",
+    "WBB",
+    "WBBB",
+    "WBBBB",
+    "WBBBBB",
+    "WBBBBBB",
+    "WBBBBBBB",
+    "WBBBBBBBB",
+    "WBBBBBBBBB",
+    "WBBBBBBBBBB",
+    "WBBBBBBBBBBB",
+    "WBBBBBBWWWWW",
+    "WBBBBBBW",
+    "WBBWWBBBW",
+    "WBWSWWBBBW",
+    "WWSSSWWBBBW",
+    "WSSSSSWWBBBW",
+    "SSSSSSSSWBBW",
+    "SSSSSSSSWWW",
   ];
-  // White outline (1px border)
-  for (const [dx, dy] of cursorShape) {
-    for (let ox = -1; ox <= 1; ox++) {
-      for (let oy = -1; oy <= 1; oy++) {
-        setPixel(cx + dx + ox, cy + dy + oy, 255, 255, 255, 255);
+  const SCALE = 2;
+  // Draw white outline first, then black fill
+  for (const pass of ["outline", "fill"] as const) {
+    for (let row = 0; row < template.length; row++) {
+      for (let col = 0; col < template[row].length; col++) {
+        const ch = template[row][col];
+        if (ch === "S") continue; // skip / transparent
+        if (pass === "outline" && ch === "W") {
+          // White border pixels
+          for (let sy = 0; sy < SCALE; sy++) {
+            for (let sx = 0; sx < SCALE; sx++) {
+              setPixel(cx + col * SCALE + sx, cy + row * SCALE + sy, 255, 255, 255, 255);
+            }
+          }
+        } else if (pass === "fill" && ch === "B") {
+          // Black fill pixels
+          for (let sy = 0; sy < SCALE; sy++) {
+            for (let sx = 0; sx < SCALE; sx++) {
+              setPixel(cx + col * SCALE + sx, cy + row * SCALE + sy, 0, 0, 0, 255);
+            }
+          }
+        }
       }
     }
-  }
-  // Black fill
-  for (const [dx, dy] of cursorShape) {
-    setPixel(cx + dx, cy + dy, 0, 0, 0, 255);
   }
 
   return PNG.sync.write(img);

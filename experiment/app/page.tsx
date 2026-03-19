@@ -36,8 +36,9 @@ const API_BASE = "http://localhost:4001";
 function buildFrameUrls(turns: Turn[]): string[] {
   const frames: string[] = [];
   for (const t of turns) {
-    // Skip turn 1 input — it's always a blank about:blank page
-    if (t.turn > 1 && t.inputScreenshotUrl) frames.push(API_BASE + t.inputScreenshotUrl);
+    // Skip turn 1 and turn 2 input — first screenshots are always blank
+    if (t.turn <= 1) continue;
+    if (t.turn > 2 && t.inputScreenshotUrl) frames.push(API_BASE + t.inputScreenshotUrl);
     for (const url of t.actionScreenshotUrls ?? []) {
       frames.push(API_BASE + url);
     }

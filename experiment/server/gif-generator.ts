@@ -21,9 +21,12 @@ export async function generateRunVideo(
       if (!hasActions) break;
     }
 
-    const inputPath = path.join(screenshotDir, `turn-${i}-input.png`);
-    if (fs.existsSync(inputPath)) {
-      files.push(inputPath);
+    // Skip turn 1 entirely and turn 2 input — first screenshots are always blank
+    if (i > 2) {
+      const inputPath = path.join(screenshotDir, `turn-${i}-input.png`);
+      if (fs.existsSync(inputPath)) {
+        files.push(inputPath);
+      }
     }
 
     for (let j = 0; ; j++) {
@@ -35,7 +38,7 @@ export async function generateRunVideo(
       }
     }
 
-    if (fs.existsSync(resultPath)) {
+    if (i > 1 && fs.existsSync(resultPath)) {
       files.push(resultPath);
     }
   }

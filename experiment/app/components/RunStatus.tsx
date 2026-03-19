@@ -61,7 +61,7 @@ export default function RunStatus({
         : "";
 
   return (
-    <div className={`run-status ${state}`}>
+    <div className={`run-status ${state}${isFinished && verdict ? ` run-status-${verdict}` : ""}`}>
       <span className="dot" />
       {isFinished && badgeLabel ? (
         <>

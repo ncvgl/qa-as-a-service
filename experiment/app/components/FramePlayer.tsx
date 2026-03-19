@@ -11,7 +11,7 @@ const FPS = 6;
 const FRAME_INTERVAL = Math.round(1000 / FPS);
 
 export default function FramePlayer({ frames, videoUrl }: Props) {
-  const [currentFrame, setCurrentFrame] = useState(Math.min(2, frames.length - 1));
+  const [currentFrame, setCurrentFrame] = useState(0);
   const [playing, setPlaying] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -131,7 +131,9 @@ export default function FramePlayer({ frames, videoUrl }: Props) {
               URL.revokeObjectURL(url);
             }}
           >
-            &#8595;
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 2v9m0 0l-3.5-3.5M8 11l3.5-3.5M2 14h12" />
+            </svg>
           </button>
         )}
       </div>
