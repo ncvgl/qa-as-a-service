@@ -12,7 +12,7 @@
   --text-bright: #e8e8e8;
 
   --accent-blue: #1d9bd1;
-  --accent-green: #007a5a;
+  --accent-green: #2ea67a;
   --accent-yellow: #e8a230;
   --accent-red: #e01e5a;
   --accent-purple: #6b3fa0;
@@ -341,7 +341,7 @@ html, body {
   border: 1px solid rgba(0, 122, 90, 0.25);
 }
 
-.run-status.failed {
+.run-status.fail {
   background: rgba(224, 30, 90, 0.12);
   color: var(--accent-red);
   border: 1px solid rgba(224, 30, 90, 0.25);
@@ -386,12 +386,18 @@ html, body {
   margin-left: 8px;
 }
 
+.verdict-pass,
 .verdict-success {
   background: rgba(0, 122, 90, 0.25);
   color: var(--accent-green);
 }
 
-.verdict-platform_error {
+.verdict-fail {
+  background: rgba(224, 30, 90, 0.25);
+  color: var(--accent-red);
+}
+
+.verdict-platform_bug {
   background: rgba(224, 30, 90, 0.25);
   color: var(--accent-red);
 }
@@ -452,7 +458,7 @@ html, body {
   color: var(--accent-green);
 }
 
-.run-summary-failed {
+.run-summary-fail {
   background: rgba(224, 30, 90, 0.12);
   color: var(--accent-red);
 }
@@ -555,6 +561,13 @@ html, body {
   font-variant-numeric: tabular-nums;
   min-width: 60px;
   text-align: right;
+}
+
+.frame-player-download {
+  margin-left: 8px;
+  text-decoration: none;
+  font-size: 16px;
+  line-height: 1;
 }
 
 /* ── Turn Timeline ── */

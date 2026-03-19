@@ -160,18 +160,18 @@ app.get<{
   return reply.status(404).send({ error: "Screenshot not found" });
 });
 
-// Serve run GIF
+// Serve run video (MP4)
 app.get<{
   Params: { id: string };
-}>("/api/run/:id/gif", async (request, reply) => {
+}>("/api/run/:id/video", async (request, reply) => {
   const { id } = request.params;
-  const gifPath = path.join(getScreenshotDir(id), "run.gif");
+  const mp4Path = path.join(getScreenshotDir(id), "run.mp4");
 
-  if (fs.existsSync(gifPath)) {
-    return reply.type("image/gif").send(fs.readFileSync(gifPath));
+  if (fs.existsSync(mp4Path)) {
+    return reply.type("video/mp4").send(fs.readFileSync(mp4Path));
   }
 
-  return reply.status(404).send({ error: "GIF not found" });
+  return reply.status(404).send({ error: "Video not found" });
 });
 
 // List all completed runs

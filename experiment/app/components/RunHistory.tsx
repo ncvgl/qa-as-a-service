@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
-type Verdict = "success" | "platform_error" | "agent_failure" | null;
+type RunState = "idle" | "running" | "completed" | "fail" | "stuck";
+type Verdict = "pass" | "platform_bug" | "agent_failure" | null;
 
 type RunMeta = {
   id: string;
@@ -25,9 +25,11 @@ type Props = {
 };
 
 const VERDICT_LABELS: Record<string, string> = {
+  pass: "PASS",
   success: "PASS",
-  platform_error: "BUG",
-  agent_failure: "FAIL",
+  platform_bug: "FAIL",
+  platform_error: "FAIL",
+  agent_failure: "AGENT FAIL",
 };
 
 function timeAgo(iso: string): string {
@@ -88,11 +90,11 @@ export default function RunHistory({ activeRunId, selectedRunId, onSelectRun, on
                   {VERDICT_LABELS[run.verdict] ?? run.verdict}
                 </span>
               )}
-              {!run.verdict && run.state === "failed" && (
-                <span className="run-history-verdict verdict-platform_error">FAIL</span>
+              {!run.verdict && run.state === "fail" && (
+                <span className="run-history-verdict verdict-fail">FAIL</span>
               )}
               {!run.verdict && run.state === "stuck" && (
-                <span className="run-history-verdict verdict-agent_failure">STUCK</span>
+                <span className="run-history-verdict verdict-fail">FAIL</span>
               )}
               <span className="run-history-time">{timeAgo(run.startedAt)}</span>
             </div>

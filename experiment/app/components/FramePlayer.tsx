@@ -4,12 +4,13 @@ import { useState, useRef, useCallback, useEffect } from "react";
 
 type Props = {
   frames: string[]; // ordered screenshot URLs
+  videoUrl?: string | null;
 };
 
 const FPS = 6;
 const FRAME_INTERVAL = Math.round(1000 / FPS);
 
-export default function FramePlayer({ frames }: Props) {
+export default function FramePlayer({ frames, videoUrl }: Props) {
   const [currentFrame, setCurrentFrame] = useState(Math.min(2, frames.length - 1));
   const [playing, setPlaying] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -113,6 +114,26 @@ export default function FramePlayer({ frames }: Props) {
         <span className="frame-player-counter">
           {currentFrame + 1} / {total}
         </span>
+
+        {/* Download MP4 */}
+        {videoUrl && (
+          <button
+            className="frame-player-btn frame-player-download"
+            title="Download MP4"
+            onClick={async () => {
+              const res = await fetch(videoUrl);
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "run.mp4";
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            &#8595;
+          </button>
+        )}
       </div>
     </div>
   );

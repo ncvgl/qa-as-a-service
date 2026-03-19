@@ -2,8 +2,8 @@
 
 import FramePlayer from "./FramePlayer";
 
-type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
-type Verdict = "success" | "platform_error" | "agent_failure" | null;
+type RunState = "idle" | "running" | "completed" | "fail" | "stuck";
+type Verdict = "pass" | "platform_bug" | "agent_failure" | null;
 
 type Props = {
   state: RunState;
@@ -12,12 +12,15 @@ type Props = {
   totalDurationMs: number;
   prompt: string | null;
   frames: string[];
+  videoUrl?: string | null;
 };
 
 const VERDICT_LABELS: Record<string, string> = {
+  pass: "PASS",
   success: "PASS",
-  platform_error: "PLATFORM BUG",
-  agent_failure: "AGENT FAILURE",
+  platform_bug: "FAIL",
+  platform_error: "FAIL",
+  agent_failure: "AGENT FAIL",
 };
 
 function formatDuration(ms: number): string {
@@ -33,22 +36,23 @@ export default function RunOverview({
   totalDurationMs,
   prompt,
   frames,
+  videoUrl,
 }: Props) {
-  const isFinished = state === "completed" || state === "failed" || state === "stuck";
+  const isFinished = state === "completed" || state === "fail" || state === "stuck";
 
   const badgeClass = verdict
     ? `verdict-${verdict}`
-    : state === "failed"
-      ? "verdict-platform_error"
+    : state === "fail"
+      ? "verdict-fail"
       : state === "stuck"
-        ? "verdict-agent_failure"
+        ? "verdict-fail"
         : "";
   const badgeLabel = verdict
     ? (VERDICT_LABELS[verdict] ?? verdict)
-    : state === "failed"
+    : state === "fail"
       ? "FAIL"
       : state === "stuck"
-        ? "STUCK"
+        ? "FAIL"
         : "";
 
   return (
@@ -83,7 +87,7 @@ export default function RunOverview({
       )}
 
       {/* Frame player */}
-      {frames.length > 0 && <FramePlayer frames={frames} />}
+      {frames.length > 0 && <FramePlayer frames={frames} videoUrl={videoUrl} />}
     </div>
   );
 }

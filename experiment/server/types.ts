@@ -48,9 +48,9 @@ export type Turn = {
 
 // ── Run ──
 
-export type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
+export type RunState = "idle" | "running" | "completed" | "fail" | "stuck";
 
-export type Verdict = "success" | "platform_error" | "agent_failure" | null;
+export type Verdict = "pass" | "platform_bug" | "agent_failure" | null;
 
 export type Run = {
   id: string;
@@ -98,7 +98,7 @@ export type RunCompleteEvent = {
     verdictDetails: string | null;
     error: string | null;
     totalTurns: number;
-    gifUrl: string | null;
+    videoUrl: string | null;
   };
 };
 

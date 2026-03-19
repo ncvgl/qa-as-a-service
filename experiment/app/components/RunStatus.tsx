@@ -1,7 +1,7 @@
 "use client";
 
-type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
-type Verdict = "success" | "platform_error" | "agent_failure" | null;
+type RunState = "idle" | "running" | "completed" | "fail" | "stuck";
+type Verdict = "pass" | "platform_bug" | "agent_failure" | null;
 
 type Props = {
   state: RunState;
@@ -16,14 +16,16 @@ const LABELS: Record<RunState, string> = {
   idle: "Ready",
   running: "Running",
   completed: "Completed",
-  failed: "Failed",
+  fail: "Fail",
   stuck: "Stuck",
 };
 
 const VERDICT_LABELS: Record<string, string> = {
+  pass: "PASS",
   success: "PASS",
-  platform_error: "PLATFORM BUG",
-  agent_failure: "AGENT FAILURE",
+  platform_bug: "FAIL",
+  platform_error: "FAIL",
+  agent_failure: "AGENT FAIL",
 };
 
 function formatDuration(ms: number): string {
@@ -40,22 +42,22 @@ export default function RunStatus({
   error,
   totalDurationMs,
 }: Props) {
-  const isFinished = state === "completed" || state === "failed" || state === "stuck";
+  const isFinished = state === "completed" || state === "fail" || state === "stuck";
 
   // Determine the badge to show for finished runs
   const badgeClass = verdict
     ? `verdict-${verdict}`
-    : state === "failed"
-      ? "verdict-platform_error"
+    : state === "fail"
+      ? "verdict-fail"
       : state === "stuck"
-        ? "verdict-agent_failure"
+        ? "verdict-fail"
         : "";
   const badgeLabel = verdict
     ? (VERDICT_LABELS[verdict] ?? verdict)
-    : state === "failed"
+    : state === "fail"
       ? "FAIL"
       : state === "stuck"
-        ? "STUCK"
+        ? "FAIL"
         : "";
 
   return (

@@ -7,8 +7,8 @@ import TurnTimeline from "./components/TurnTimeline";
 import RunHistory from "./components/RunHistory";
 
 type TurnStatus = "running" | "completed" | "stuck" | "error";
-type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
-type Verdict = "success" | "platform_error" | "agent_failure" | null;
+type RunState = "idle" | "running" | "completed" | "fail" | "stuck";
+type Verdict = "pass" | "platform_bug" | "agent_failure" | null;
 
 type Turn = {
   turn: number;
@@ -64,8 +64,10 @@ export default function Home() {
   // History state
   const [viewMode, setViewMode] = useState<"live" | "history">("live");
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-  const [historyPrompt, setHistoryPrompt] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState<string | null>(null);
   const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
+  const displayedRunId = viewMode === "history" ? selectedRunId : runId;
+  const videoUrl = displayedRunId ? `${API_BASE}/api/run/${displayedRunId}/video` : null;
 
   const resetLiveState = useCallback(() => {
     setTurns([]);
@@ -76,6 +78,7 @@ export default function Home() {
     setVerdictDetails(null);
     setError(null);
     setTotalDurationMs(0);
+    setPrompt(null);
   }, []);
 
   const handleRun = useCallback(
@@ -93,6 +96,7 @@ export default function Home() {
       // Reset state
       resetLiveState();
       setRunState("running");
+      setPrompt(prompt);
       runStartTimeRef.current = Date.now();
 
       try {
@@ -150,11 +154,11 @@ export default function Home() {
           eventSourceRef.current = null;
           // Only set failed if still running (not already completed)
           setRunState((prev) =>
-            prev === "running" ? "failed" : prev,
+            prev === "running" ? "fail" : prev,
           );
         };
       } catch (err) {
-        setRunState("failed");
+        setRunState("fail");
         setError((err as Error).message);
       }
     },
@@ -183,7 +187,7 @@ export default function Home() {
 
       setViewMode("history");
       setSelectedRunId(id);
-      setHistoryPrompt(data.prompt ?? null);
+      setPrompt(data.prompt ?? null);
       setTurns(data.turns ?? []);
       setRunState(data.state);
       setFinalMessage(data.finalMessage ?? null);
@@ -211,7 +215,7 @@ export default function Home() {
     }
   }, [runState, resetLiveState]);
 
-  const isFinished = runState === "completed" || runState === "failed" || runState === "stuck";
+  const isFinished = runState === "completed" || runState === "fail" || runState === "stuck";
 
   return (
     <div className="app-layout">
@@ -242,8 +246,9 @@ export default function Home() {
             verdict={verdict}
             currentTurn={currentTurn}
             totalDurationMs={totalDurationMs}
-            prompt={viewMode === "history" ? historyPrompt : null}
+            prompt={prompt}
             frames={isFinished ? buildFrameUrls(turns) : []}
+            videoUrl={isFinished ? videoUrl : null}
           />
 
           <TurnTimeline turns={turns} autoScroll={viewMode === "live"} />
@@ -255,8 +260,9 @@ export default function Home() {
               verdict={verdict}
               currentTurn={currentTurn}
               totalDurationMs={totalDurationMs}
-              prompt={viewMode === "history" ? historyPrompt : null}
+              prompt={prompt}
               frames={buildFrameUrls(turns)}
+              videoUrl={videoUrl}
             />
           )}
         </div>

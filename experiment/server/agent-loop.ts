@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { launchBrowser, captureScreenshot, executeAction, type BrowserSession } from "./browser.js";
 import { callModel, buildToolOutputs, type FullModelResult } from "./openai.js";
 import { isStuck } from "./stuck-detector.js";
-import { generateRunGif } from "./gif-generator.js";
+import { generateRunVideo } from "./gif-generator.js";
 import type { Run, Turn, SSEEvent, Verdict } from "./types.js";
 
 const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
@@ -23,24 +23,27 @@ You have three tools:
 - After each action, you will receive a new screenshot showing the result.
 - When done (whether successful or not), respond with a text message (no tool calls) using this exact format:
 
-RESULT: <success|platform_error|agent_failure>
+RESULT: <pass|platform_bug|agent_failure>
 SUMMARY: <one sentence describing what happened>
 DETAILS: <what you observed that led to this conclusion>
 
-Use "success" when the task was completed as requested.
-Use "platform_error" when the website/application is broken, unresponsive, shows error messages, or behaves unexpectedly (e.g. buttons don't work, pages fail to load, features are missing). This means the platform under test has a bug.
+Use "pass" when the task was completed as requested.
+Use "platform_bug" when the website/application is broken, unresponsive, shows error messages, or behaves unexpectedly (e.g. buttons don't work, pages fail to load, features are missing). This means the platform under test has a bug.
 Use "agent_failure" when you were unable to complete the task due to your own limitations (e.g. could not find an element, misclicked, got confused by the UI).`;
 
 function parseVerdict(run: Run): void {
   const msg = run.finalMessage;
   if (!msg) return;
 
-  const resultMatch = msg.match(/RESULT:\s*(success|platform_error|agent_failure)/i);
+  const resultMatch = msg.match(/RESULT:\s*(pass|success|platform_bug|platform_error|agent_failure)/i);
   const summaryMatch = msg.match(/SUMMARY:\s*(.+?)(?:\n|$)/i);
   const detailsMatch = msg.match(/DETAILS:\s*([\s\S]+)/i);
 
   if (resultMatch) {
-    run.verdict = resultMatch[1].toLowerCase() as Verdict;
+    let raw = resultMatch[1].toLowerCase();
+    if (raw === "success") raw = "pass";
+    if (raw === "platform_error") raw = "platform_bug";
+    run.verdict = raw as Verdict;
   }
   if (summaryMatch) {
     run.verdictSummary = summaryMatch[1].trim();
@@ -301,16 +304,16 @@ export async function runAgent(
 
     // If we exhausted all turns without completing
     if (run.state === "running") {
-      run.state = "failed";
+      run.state = "fail";
       run.error = `Reached maximum turns (${maxTurns}) without completing the task`;
     }
   } catch (err) {
     const error = err as Error;
     if (error.message === "Run cancelled" || signal.aborted) {
-      run.state = "failed";
+      run.state = "fail";
       run.error = "Run was cancelled";
     } else {
-      run.state = "failed";
+      run.state = "fail";
       run.error = error.message;
     }
   } finally {
@@ -322,14 +325,14 @@ export async function runAgent(
     run.finishedAt = new Date().toISOString();
     activeRuns.delete(runId);
 
-    // Generate GIF from all result screenshots
-    let gifUrl: string | null = null;
+    // Generate MP4 from all result screenshots
+    let videoUrl: string | null = null;
     try {
-      const gifPath = await generateRunGif(screenshotDir, runId);
-      if (gifPath) {
-        gifUrl = `/api/run/${runId}/gif`;
+      const mp4Path = await generateRunVideo(screenshotDir, runId);
+      if (mp4Path) {
+        videoUrl = `/api/run/${runId}/video`;
       }
-    } catch { /* gif generation is best-effort */ }
+    } catch { /* video generation is best-effort */ }
 
     // Persist full run data to disk
     try {
@@ -349,7 +352,7 @@ export async function runAgent(
         verdictDetails: run.verdictDetails,
         error: run.error,
         totalTurns: run.turns.length,
-        gifUrl,
+        videoUrl,
       },
     });
   }

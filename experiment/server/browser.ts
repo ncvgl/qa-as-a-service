@@ -61,12 +61,11 @@ export type ScreenshotResult = {
   url: string;
 };
 
-/** Draw a classic mouse pointer (pink/purple fill, white border) on a PNG buffer.
- *  The tip of the arrow is at (cx, cy). Rendered at 2x scale for visibility. */
+/** Draw a pink 50%-transparent halo and a mouse pointer on a PNG buffer.
+ *  The centre of the halo (and tip of the arrow) is at (cx, cy). */
 function drawCursorOnPng(pngBuf: Buffer, cx: number, cy: number): Buffer {
   const img = PNG.sync.read(pngBuf);
   const { width, height, data } = img;
-  const S = 2; // scale factor
 
   const setPixel = (px: number, py: number, r: number, g: number, b: number, a: number) => {
     if (px < 0 || py < 0 || px >= width || py >= height) return;
@@ -78,62 +77,51 @@ function drawCursorOnPng(pngBuf: Buffer, cx: number, cy: number): Buffer {
     data[idx + 3] = Math.max(data[idx + 3], a);
   };
 
-  const fillBlock = (bx: number, by: number, r: number, g: number, b: number, a: number) => {
-    for (let dy = 0; dy < S; dy++) {
-      for (let dx = 0; dx < S; dx++) {
-        setPixel(bx + dx, by + dy, r, g, b, a);
+  // --- Pink halo: 40px radius filled circle, 50% transparent ---
+  const R = 40;
+  const R2 = R * R;
+  for (let dy = -R; dy <= R; dy++) {
+    for (let dx = -R; dx <= R; dx++) {
+      if (dx * dx + dy * dy <= R2) {
+        // pink (255, 105, 180) at alpha 128 (~50%)
+        setPixel(cx + dx, cy + dy, 255, 105, 180, 128);
       }
     }
-  };
+  }
 
-  // Cursor scanline rows: y -> [x0, x1] inclusive, fill = true for interior
-  const rows: Array<{ y: number; x0: number; x1: number; fill: boolean }> = [
-    // White outline (drawn first)
-    { y: 0, x0: 0, x1: 0, fill: false },
-    { y: 1, x0: 0, x1: 1, fill: false },
-    { y: 2, x0: 0, x1: 2, fill: false },
-    { y: 3, x0: 0, x1: 3, fill: false },
-    { y: 4, x0: 0, x1: 4, fill: false },
-    { y: 5, x0: 0, x1: 5, fill: false },
-    { y: 6, x0: 0, x1: 6, fill: false },
-    { y: 7, x0: 0, x1: 7, fill: false },
-    { y: 8, x0: 0, x1: 8, fill: false },
-    { y: 9, x0: 0, x1: 9, fill: false },
-    { y: 10, x0: 0, x1: 10, fill: false },
-    { y: 11, x0: 0, x1: 11, fill: false },
-    { y: 12, x0: 0, x1: 5, fill: false },
-    { y: 13, x0: 0, x1: 3, fill: false },
-    { y: 14, x0: 0, x1: 2, fill: false },
-    { y: 15, x0: 0, x1: 1, fill: false },
-    { y: 16, x0: 0, x1: 0, fill: false },
-    // Pink/purple fill (drawn on top)
-    { y: 1, x0: 1, x1: 1, fill: true },
-    { y: 2, x0: 1, x1: 1, fill: true },
-    { y: 3, x0: 1, x1: 2, fill: true },
-    { y: 4, x0: 1, x1: 3, fill: true },
-    { y: 5, x0: 1, x1: 4, fill: true },
-    { y: 6, x0: 1, x1: 5, fill: true },
-    { y: 7, x0: 1, x1: 6, fill: true },
-    { y: 8, x0: 1, x1: 7, fill: true },
-    { y: 9, x0: 1, x1: 8, fill: true },
-    { y: 10, x0: 1, x1: 9, fill: true },
-    { y: 11, x0: 1, x1: 4, fill: true },
-    { y: 12, x0: 1, x1: 2, fill: true },
-    { y: 13, x0: 1, x1: 1, fill: true },
+  // --- Small black arrow cursor, tip at (cx, cy) ---
+  // Classic top-left arrow shape, 12px tall
+  const cursorShape = [
+    [0, 0],
+    [0, 1],
+    [0, 2], [1, 2],
+    [0, 3], [1, 3],
+    [0, 4], [1, 4], [2, 4],
+    [0, 5], [1, 5], [2, 5],
+    [0, 6], [1, 6], [2, 6], [3, 6],
+    [0, 7], [1, 7], [2, 7], [3, 7],
+    [0, 8], [1, 8], [2, 8], [3, 8], [4, 8],
+    [0, 9], [1, 9], [2, 9], [3, 9], [4, 9],
+    [0, 10], [1, 10], [2, 10], [3, 10], [4, 10], [5, 10],
+    [0, 11], [1, 11], [2, 11], [3, 11], [4, 11], [5, 11],
+    [0, 12], [1, 12], [2, 12],
+    [0, 13], [1, 13],
+    [3, 12], [4, 12],
+    [3, 13], [4, 13], [5, 13],
+    [5, 14], [6, 14],
+    [6, 15], [7, 15],
   ];
-
-  // Draw white outline first, then pink fill on top — all at 2x scale
-  for (const row of rows) {
-    if (row.fill) continue;
-    for (let x = row.x0; x <= row.x1; x++) {
-      fillBlock(cx + x * S, cy + row.y * S, 255, 255, 255, 255);
+  // White outline (1px border)
+  for (const [dx, dy] of cursorShape) {
+    for (let ox = -1; ox <= 1; ox++) {
+      for (let oy = -1; oy <= 1; oy++) {
+        setPixel(cx + dx + ox, cy + dy + oy, 255, 255, 255, 255);
+      }
     }
   }
-  for (const row of rows) {
-    if (!row.fill) continue;
-    for (let x = row.x0; x <= row.x1; x++) {
-      fillBlock(cx + x * S, cy + row.y * S, 190, 60, 200, 255);
-    }
+  // Black fill
+  for (const [dx, dy] of cursorShape) {
+    setPixel(cx + dx, cy + dy, 0, 0, 0, 255);
   }
 
   return PNG.sync.write(img);

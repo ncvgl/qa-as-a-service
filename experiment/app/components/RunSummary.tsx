@@ -2,8 +2,8 @@
 
 import FramePlayer from "./FramePlayer";
 
-type RunState = "idle" | "running" | "completed" | "failed" | "stuck";
-type Verdict = "success" | "platform_error" | "agent_failure" | null;
+type RunState = "idle" | "running" | "completed" | "fail" | "stuck";
+type Verdict = "pass" | "platform_bug" | "agent_failure" | null;
 
 type Props = {
   state: RunState;
@@ -17,14 +17,16 @@ type Props = {
 };
 
 const VERDICT_LABELS: Record<string, string> = {
+  pass: "PASS",
   success: "PASS",
-  platform_error: "PLATFORM BUG",
-  agent_failure: "AGENT FAILURE",
+  platform_bug: "FAIL",
+  platform_error: "FAIL",
+  agent_failure: "AGENT FAIL",
 };
 
 const STATE_LABELS: Record<string, string> = {
   completed: "Completed",
-  failed: "Failed",
+  fail: "Fail",
   stuck: "Stuck",
 };
 
@@ -61,7 +63,7 @@ export default function RunSummary({
         {verdictSummary && (
           <span className="run-summary-message">{verdictSummary}</span>
         )}
-        {!verdict && state === "failed" && error && (
+        {!verdict && state === "fail" && error && (
           <span className="run-summary-message">{error}</span>
         )}
         {state === "stuck" && (
