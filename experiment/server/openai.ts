@@ -84,7 +84,7 @@ export async function callModel(params: CallModelParams): Promise<FullModelResul
     input,
     tools,
     parallel_tool_calls: false,
-    reasoning: { effort: "medium", summary: "concise" },
+    reasoning: { effort: "high", summary: "detailed" },
     truncation: "auto",
   };
 
