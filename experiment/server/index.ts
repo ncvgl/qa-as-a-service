@@ -52,10 +52,12 @@ function broadcast(runId: string, event: SSEEvent) {
 // ── Routes ──
 
 // Start a new run
+const MAX_TURNS = 30;
+
 app.post<{
-  Body: { prompt: string; maxTurns?: number };
+  Body: { prompt: string };
 }>("/api/run", async (request, reply) => {
-  const { prompt, maxTurns = 20 } = request.body ?? {};
+  const { prompt } = request.body ?? {};
 
   if (!prompt || typeof prompt !== "string") {
     return reply.status(400).send({ error: "prompt is required" });
@@ -74,7 +76,7 @@ app.post<{
     verdict: null,
     verdictSummary: null,
     verdictDetails: null,
-    maxTurns,
+    maxTurns: MAX_TURNS,
     error: null,
     device: null,
     deviceLabel: null,
@@ -82,7 +84,7 @@ app.post<{
   runs.set(runId, run);
 
   // Start agent in background — uses the same runId
-  runAgent(runId, prompt, maxTurns, (event) => broadcast(runId, event)).catch(
+  runAgent(runId, prompt, MAX_TURNS, (event) => broadcast(runId, event)).catch(
     (err) => {
       console.error(`Run ${runId} failed:`, err);
     },

@@ -81,7 +81,6 @@ export default function Home() {
   // Currently viewed run
   const [viewedRunId, setViewedRunId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"live" | "history">("live");
-  const [maxTurns] = useState(20);
 
   // Displayed run state (for whichever run is currently viewed)
   const [displayed, setDisplayed] = useState<RunData>(emptyRunData());
@@ -112,7 +111,7 @@ export default function Home() {
         const res = await fetch(`${API_BASE}/api/run`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, maxTurns }),
+          body: JSON.stringify({ prompt }),
         });
 
         if (!res.ok) {
@@ -199,7 +198,7 @@ export default function Home() {
         }));
       }
     },
-    [maxTurns, updateDisplayedIfViewed],
+    [updateDisplayedIfViewed],
   );
 
   const handleStop = useCallback(async () => {
