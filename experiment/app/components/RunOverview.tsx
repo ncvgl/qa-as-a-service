@@ -11,6 +11,7 @@ type Props = {
   currentTurn: number;
   totalDurationMs: number;
   prompt: string | null;
+  deviceLabel: string | null;
   frames: string[];
   videoUrl?: string | null;
 };
@@ -35,6 +36,7 @@ export default function RunOverview({
   currentTurn,
   totalDurationMs,
   prompt,
+  deviceLabel,
   frames,
   videoUrl,
 }: Props) {
@@ -83,6 +85,14 @@ export default function RunOverview({
           <ul className="turn-actions-list turn-actions-task">
             <li><code>{prompt}</code></li>
           </ul>
+        </div>
+      )}
+
+      {/* Device info */}
+      {deviceLabel && (
+        <div className="run-overview-device">
+          <span className="turn-section-label">Device</span>
+          <span className="device-badge">{deviceLabel}</span>
         </div>
       )}
 

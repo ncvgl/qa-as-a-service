@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { PNG } from "pngjs";
 import type { ComputerAction } from "./types.js";
+import type { DeviceConfig } from "./device-extractor.js";
 
 const DEFAULT_VIEWPORT = { width: 1440, height: 900 };
 const INTER_ACTION_DELAY_MS = 120;
@@ -31,13 +32,20 @@ async function getOrLaunchBrowser(): Promise<Browser> {
   return sharedBrowser;
 }
 
-export async function launchBrowser(): Promise<BrowserSession> {
+export async function launchBrowser(device?: DeviceConfig): Promise<BrowserSession> {
   const browser = await getOrLaunchBrowser();
 
   const context = await browser.newContext({
-    viewport: DEFAULT_VIEWPORT,
+    viewport: device?.viewport ?? DEFAULT_VIEWPORT,
     userAgent:
+      device?.userAgent ??
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    // Always use deviceScaleFactor 1 so screenshots match CSS pixel coordinates.
+    // The CUA model sends click coordinates based on screenshot dimensions,
+    // but Playwright's click(x,y) operates in CSS pixel space.
+    deviceScaleFactor: 1,
+    isMobile: device?.isMobile ?? false,
+    hasTouch: device?.hasTouch ?? false,
   });
 
   const page = await context.newPage();
@@ -150,9 +158,9 @@ export async function captureScreenshot(
   fs.mkdirSync(dir, { recursive: true });
   const filename = `${label}.png`;
   const filePath = path.join(dir, filename);
-  let buffer = Buffer.from(await page.screenshot({ type: "png" }));
+  let buffer: Buffer = Buffer.from(await page.screenshot({ type: "png" }));
   if (cursorPos && Number.isFinite(cursorPos.x) && Number.isFinite(cursorPos.y)) {
-    buffer = drawCursorOnPng(buffer, Math.round(cursorPos.x), Math.round(cursorPos.y));
+    buffer = drawCursorOnPng(buffer, Math.round(cursorPos.x), Math.round(cursorPos.y)) as Buffer;
   }
   fs.writeFileSync(filePath, buffer);
   const dataUrl = `data:image/png;base64,${buffer.toString("base64")}`;

@@ -65,6 +65,8 @@ export type Run = {
   verdictDetails: string | null;
   maxTurns: number;
   error: string | null;
+  device: string | null;
+  deviceLabel: string | null;
 };
 
 // ── Run metadata (for history listing) ──
@@ -79,6 +81,8 @@ export type RunMeta = {
   finishedAt: string | null;
   totalTurns: number;
   error: string | null;
+  device: string | null;
+  deviceLabel: string | null;
 };
 
 // ── SSE Events ──
@@ -99,6 +103,8 @@ export type RunCompleteEvent = {
     error: string | null;
     totalTurns: number;
     videoUrl: string | null;
+    device: string | null;
+    deviceLabel: string | null;
   };
 };
 

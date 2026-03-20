@@ -465,6 +465,24 @@ html, body {
   gap: 8px;
 }
 
+.run-overview-device {
+  padding: 4px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.device-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+}
+
 .run-summary {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);

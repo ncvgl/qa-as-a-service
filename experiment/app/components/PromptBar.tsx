@@ -52,6 +52,16 @@ const PRESETS: Record<string, string> = {
 EXPECTED BEHAVIOR: The message should appear exactly once both before and after refresh.
 BUG TO CHECK: If the message appears MORE than once before refresh but only once after refresh, that is a duplicate message rendering bug — report as platform_bug.
 If the message appears exactly once both times, the behavior is correct — report as pass.`,
+  slawk_android_thread: `Test on Android (Pixel 7). Go to slawk.ncvgl.com and log in with email demo@slawk.dev and password tryme123. Then:
+1. Open the "general" channel
+2. Find a recent message and tap on it to open its thread
+3. Reply in the thread with "Android thread reply from QA"
+4. Verify the reply appears in the thread
+5. Close the thread panel (tap the X or back button)
+6. Find the same message again and tap on it to reopen the thread
+7. Verify your previous reply is still visible
+8. Send another reply: "Second reply after reopen"
+9. Verify both replies are visible in the thread`,
 };
 
 const PRESET_LABELS: Record<string, string> = {
@@ -64,6 +74,7 @@ const PRESET_LABELS: Record<string, string> = {
   slawk_edit_profile: "Slawk Edit Profile",
   slawk_thread_reply: "Slawk Thread Reply",
   slawk_duplicate_msg_bug: "Slawk Duplicate Msg Bug",
+  slawk_android_thread: "Slawk Android Thread",
   wikipedia: "Wikipedia Lookup",
 };
 

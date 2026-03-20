@@ -44,6 +44,8 @@ function broadcast(runId: string, event: SSEEvent) {
     stored.verdictSummary = event.data.verdictSummary ?? null;
     stored.error = event.data.error;
     stored.finishedAt = new Date().toISOString();
+    stored.device = event.data.device ?? stored.device;
+    stored.deviceLabel = event.data.deviceLabel ?? stored.deviceLabel;
   }
 }
 
@@ -71,8 +73,11 @@ app.post<{
     finalMessage: null,
     verdict: null,
     verdictSummary: null,
+    verdictDetails: null,
     maxTurns,
     error: null,
+    device: null,
+    deviceLabel: null,
   };
   runs.set(runId, run);
 
@@ -204,6 +209,8 @@ app.get("/api/runs", async (_request, reply) => {
         finishedAt: raw.finishedAt,
         totalTurns: raw.turns?.length ?? 0,
         error: raw.error,
+        device: raw.device ?? null,
+        deviceLabel: raw.deviceLabel ?? null,
       });
     } catch { /* skip malformed files */ }
   }
@@ -221,6 +228,8 @@ app.get("/api/runs", async (_request, reply) => {
         finishedAt: null,
         totalTurns: run.turns.length,
         error: null,
+        device: run.device ?? null,
+        deviceLabel: run.deviceLabel ?? null,
       });
     }
   }

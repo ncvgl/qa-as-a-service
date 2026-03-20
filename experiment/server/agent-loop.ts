@@ -4,18 +4,31 @@ import { launchBrowser, captureScreenshot, executeAction, type BrowserSession } 
 import { callModel, buildToolOutputs, type FullModelResult } from "./openai.js";
 import { isStuck } from "./stuck-detector.js";
 import { generateRunVideo } from "./gif-generator.js";
+import { extractDevice, type DeviceConfig } from "./device-extractor.js";
 import type { Run, Turn, SSEEvent, Verdict } from "./types.js";
 
 const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
 
-const SYSTEM_INSTRUCTIONS = `You are a browser automation agent. You are given a task and must complete it by interacting with a browser.
+function buildSystemInstructions(device: DeviceConfig): string {
+  const isDesktop = !device.isMobile;
+
+  const envBlock = isDesktop
+    ? `**Environment:** Desktop browser (${device.viewport.width}x${device.viewport.height}). We are running on macOS. Use Cmd instead of Ctrl for keyboard shortcuts (e.g. Cmd+L for address bar, Cmd+A for select all, Cmd+C/V for copy/paste).`
+    : `**Environment:** Mobile device — ${device.label}. Viewport: ${device.viewport.width}x${device.viewport.height}, touch-enabled. This is a ${device.userAgent.includes("iPhone") || device.userAgent.includes("iPad") ? "iOS" : "Android"} device.
+- Use tap/click on UI elements — touch events are handled automatically.
+- Do NOT use keyboard shortcuts like Cmd+* or Ctrl+*. Navigate using on-screen UI elements only.
+- Expect mobile layouts: hamburger menus, bottom navigation bars, compact views, swipeable panels.
+- To scroll, use the scroll action (not keyboard Page Down).
+- Elements may be larger and more spread out than on desktop.`;
+
+  return `You are a browser automation agent. You are given a task and must complete it by interacting with a browser.
 
 You have three tools:
 1. **goto_url** — Navigate to a URL. Use this ONLY for initial navigation or when you need to go to a completely different page.
 2. **computer** — Interact with the current page: click, type, scroll, keypress, etc. Use the computer tool for UI interaction.
 3. **file_upload** — Upload a file to a file input element. Use this when the task requires uploading a file. Clicking upload buttons triggers a native OS file dialog that you CANNOT interact with — you MUST use this tool instead. A dummy test file will be created and uploaded automatically. Pass a CSS selector for the file input (usually 'input[type=file]').
 
-**Environment:** We are running on macOS. Use Cmd instead of Ctrl for keyboard shortcuts (e.g. Cmd+L for address bar, Cmd+A for select all, Cmd+C/V for copy/paste).
+${envBlock}
 
 **Important rules:**
 - If you are already on the correct page, do NOT call goto_url again. Use the computer tool to click, type, or scroll.
@@ -30,6 +43,7 @@ DETAILS: <what you observed that led to this conclusion>
 Use "pass" when the task was completed as requested.
 Use "platform_bug" when the website/application is broken, unresponsive, shows error messages, or behaves unexpectedly (e.g. buttons don't work, pages fail to load, features are missing). This means the platform under test has a bug.
 Use "agent_failure" when you were unable to complete the task due to your own limitations (e.g. could not find an element, misclicked, got confused by the UI).`;
+}
 
 function parseVerdict(run: Run): void {
   const msg = run.finalMessage;
@@ -63,6 +77,10 @@ export async function runAgent(
   const abortController = new AbortController();
   const signal = abortController.signal;
 
+  // Extract device from prompt using gpt-4o-mini
+  const device = await extractDevice(prompt);
+  console.log(`[${runId}] Detected device: ${device.label} (${device.preset})`);
+
   const run: Run = {
     id: runId,
     prompt,
@@ -76,6 +94,8 @@ export async function runAgent(
     verdictDetails: null,
     maxTurns,
     error: null,
+    device: device.preset,
+    deviceLabel: device.label,
   };
 
   activeRuns.set(runId, abortController);
@@ -83,7 +103,7 @@ export async function runAgent(
   let session: BrowserSession | null = null;
 
   try {
-    session = await launchBrowser();
+    session = await launchBrowser(device);
     const recentScreenshots: Buffer[] = [];
 
     // State for the stateful Responses API loop
@@ -145,7 +165,7 @@ export async function runAgent(
       const apiStart = Date.now();
       const result: FullModelResult = await callModel({
         input: nextInput,
-        instructions: SYSTEM_INSTRUCTIONS,
+        instructions: buildSystemInstructions(device),
         previousResponseId,
         signal,
         includeGotoUrl: true,
@@ -353,6 +373,8 @@ export async function runAgent(
         error: run.error,
         totalTurns: run.turns.length,
         videoUrl,
+        device: run.device,
+        deviceLabel: run.deviceLabel,
       },
     });
   }

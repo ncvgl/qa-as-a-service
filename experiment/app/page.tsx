@@ -42,6 +42,7 @@ type RunData = {
   error: string | null;
   totalDurationMs: number;
   startTime: number;
+  deviceLabel: string | null;
 };
 
 const API_BASE = "http://localhost:4001";
@@ -72,6 +73,7 @@ function emptyRunData(): RunData {
     error: null,
     totalDurationMs: 0,
     startTime: 0,
+    deviceLabel: null,
   };
 }
 
@@ -131,6 +133,7 @@ export default function Home() {
           error: null,
           totalDurationMs: 0,
           startTime: Date.now(),
+          deviceLabel: null,
         };
 
         // Switch view to the new run
@@ -170,6 +173,7 @@ export default function Home() {
                 verdictDetails: parsed.data.verdictDetails ?? null,
                 error: parsed.data.error,
                 totalDurationMs: Date.now() - prev.startTime,
+                deviceLabel: parsed.data.deviceLabel ?? prev.deviceLabel,
               }));
               es.close();
               activeRunsRef.current.delete(id);
@@ -243,6 +247,7 @@ export default function Home() {
           ? new Date(data.finishedAt).getTime() - new Date(data.startedAt).getTime()
           : 0,
         startTime: data.startedAt ? new Date(data.startedAt).getTime() : 0,
+        deviceLabel: data.deviceLabel ?? null,
       };
 
       setViewedRunId(id);
@@ -280,6 +285,7 @@ export default function Home() {
                 verdictDetails: parsed.data.verdictDetails ?? null,
                 error: parsed.data.error,
                 totalDurationMs: Date.now() - prev.startTime,
+                deviceLabel: parsed.data.deviceLabel ?? prev.deviceLabel,
               }));
               es.close();
               activeRunsRef.current.delete(id);
@@ -305,7 +311,7 @@ export default function Home() {
     setDisplayed(emptyRunData());
   }, []);
 
-  const { runState, turns, prompt, verdict, verdictSummary, verdictDetails, error, totalDurationMs } = displayed;
+  const { runState, turns, prompt, verdict, verdictSummary, verdictDetails, error, totalDurationMs, deviceLabel } = displayed;
   const currentTurn = turns.length > 0 ? turns[turns.length - 1].turn : 0;
   const isFinished = runState === "completed" || runState === "fail" || runState === "stuck";
   const videoUrl = viewedRunId ? `${API_BASE}/api/run/${viewedRunId}/video` : null;
@@ -339,6 +345,7 @@ export default function Home() {
             currentTurn={currentTurn}
             totalDurationMs={totalDurationMs}
             prompt={prompt}
+            deviceLabel={deviceLabel}
             frames={isFinished ? buildFrameUrls(turns) : []}
             videoUrl={isFinished ? videoUrl : null}
           />
@@ -353,6 +360,7 @@ export default function Home() {
               currentTurn={currentTurn}
               totalDurationMs={totalDurationMs}
               prompt={prompt}
+              deviceLabel={deviceLabel}
               frames={buildFrameUrls(turns)}
               videoUrl={videoUrl}
             />
