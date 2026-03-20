@@ -837,6 +837,8 @@ html, body {
   transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%;
   height: auto;
+  max-height: 500px;
+  object-fit: contain;
   display: block;
 }
 
@@ -897,9 +899,13 @@ html, body {
   border-left: 3px solid var(--accent-purple);
 }
 
-/* Model reasoning gets purple left border */
-.turn-actions-reasoning li {
+/* Model reasoning block */
+.turn-reasoning-block {
   border-left: 3px solid var(--accent-purple);
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  font-size: 12.5px;
+  line-height: 1.5;
 }
 
 /* Task prompt gets blue left border */
