@@ -3,3 +3,4 @@ node_modules/
 screenshots/
 *.tsbuildinfo
 next-env.d.ts
+slawk_bug_hunt.md
