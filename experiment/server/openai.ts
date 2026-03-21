@@ -139,6 +139,26 @@ export function buildToolOutputs(
   return outputs;
 }
 
+/**
+ * Extract the reasoning summary text from raw model output.
+ */
+export function extractReasoningSummary(rawOutput: Array<Record<string, unknown>>): string | null {
+  const parts: string[] = [];
+  for (const item of rawOutput) {
+    if (item.type === "reasoning") {
+      const summary = item.summary as Array<Record<string, unknown>> | undefined;
+      if (summary) {
+        for (const s of summary) {
+          if (s.type === "summary_text" && s.text) {
+            parts.push(String(s.text));
+          }
+        }
+      }
+    }
+  }
+  return parts.length > 0 ? parts.join("\n") : null;
+}
+
 function parseResponse(response: Record<string, unknown>): ModelResult {
   const output = (response.output as Array<Record<string, unknown>>) ?? [];
   const usage = response.usage as Record<string, unknown> | null;

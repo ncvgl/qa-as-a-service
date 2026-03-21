@@ -9,6 +9,55 @@ import type { Run, Turn, SSEEvent, Verdict } from "./types.js";
 
 const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
 
+// ── Mode toggle ──
+// true  = cheap: manual conversation history, screenshots only in last N turns
+// false = stateful: previous_response_id, full screenshot history (expensive)
+const CHEAP_MODE = true;
+
+// How many recent screenshots to keep in the conversation history.
+// Older computer_call_output items get a 1x1 transparent placeholder.
+const MAX_SCREENSHOTS = 2;
+
+// 1x1 white PNG — valid image used to replace old screenshots and save tokens
+const PLACEHOLDER_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC";
+
+/**
+ * Build the managed conversation history for cheap mode.
+ * Includes all model outputs and tool outputs from previous turns,
+ * but only keeps real screenshots in the last MAX_SCREENSHOTS entries.
+ */
+function buildCheapInput(
+  conversationHistory: Array<Record<string, unknown>>,
+): Array<Record<string, unknown>> {
+  // Find indices of computer_call_output items that have a real screenshot
+  const screenshotIndices: number[] = [];
+  for (let i = 0; i < conversationHistory.length; i++) {
+    if (conversationHistory[i].type === "computer_call_output") {
+      screenshotIndices.push(i);
+    }
+  }
+
+  // Only keep screenshots in the last MAX_SCREENSHOTS outputs
+  const cutoff = screenshotIndices.length - MAX_SCREENSHOTS;
+
+  return conversationHistory.map((item, idx) => {
+    if (item.type !== "computer_call_output") return item;
+
+    const screenshotRank = screenshotIndices.indexOf(idx);
+    if (screenshotRank >= 0 && screenshotRank < cutoff) {
+      // Strip this screenshot — replace with placeholder
+      return {
+        ...item,
+        output: {
+          type: "computer_screenshot",
+          image_url: PLACEHOLDER_IMG,
+        },
+      };
+    }
+    return item;
+  });
+}
+
 function buildSystemInstructions(device: DeviceConfig): string {
   const isDesktop = !device.isMobile;
 
@@ -106,12 +155,25 @@ export async function runAgent(
     session = await launchBrowser(device);
     const recentScreenshots: Buffer[] = [];
 
-    // State for the stateful Responses API loop
+    // Stateful mode state
     let previousResponseId: string | undefined;
 
-    // Per the CUA docs, the first request should be text-only.
-    // The model will respond with a screenshot request before taking actions.
-    let nextInput: unknown = prompt;
+    // Cheap mode state: we manage the full conversation history ourselves
+    const conversationHistory: Array<Record<string, unknown>> = [];
+
+    let nextInput: unknown;
+    if (CHEAP_MODE) {
+      // Seed with the user prompt as first message
+      const userMsg = {
+        role: "user",
+        content: [{ type: "input_text", text: prompt }],
+      };
+      conversationHistory.push(userMsg);
+      nextInput = buildCheapInput(conversationHistory);
+    } else {
+      // Stateful: text-only first request per CUA docs
+      nextInput = prompt;
+    }
 
     for (let turnNum = 1; turnNum <= maxTurns; turnNum++) {
       if (signal.aborted) throw new Error("Run cancelled");
@@ -139,7 +201,7 @@ export async function runAgent(
       const turn: Turn = {
         turn: turnNum,
         status: "running",
-        inputText: turnNum === 1 ? prompt : JSON.stringify(nextInput, (_key, val) => {
+        inputText: (!CHEAP_MODE && turnNum === 1) ? prompt : JSON.stringify(nextInput, (_key, val) => {
           // Truncate base64 image data for display
           if (typeof val === "string" && val.startsWith("data:image/")) {
             return val.slice(0, 40) + "...[base64 screenshot]";
@@ -161,18 +223,19 @@ export async function runAgent(
       };
       onEvent({ type: "turn", data: turn });
 
-      // Call model (stateful with previous_response_id)
       const apiStart = Date.now();
       const result: FullModelResult = await callModel({
         input: nextInput,
         instructions: buildSystemInstructions(device),
-        previousResponseId,
+        previousResponseId: CHEAP_MODE ? undefined : previousResponseId,
         signal,
         includeGotoUrl: true,
       });
       turn.apiDurationMs = Date.now() - apiStart;
 
-      previousResponseId = result.responseId;
+      if (!CHEAP_MODE) {
+        previousResponseId = result.responseId;
+      }
 
       turn.modelResponse = {
         actions: result.actions,
@@ -295,16 +358,30 @@ export async function runAgent(
         turn.pageTitle = await session.page.title();
       } catch { /* page might be navigating */ }
 
-      // Build tool outputs to send back (stateful approach)
-      // Note: screenshots can only be sent via computer_call_output, not as
-      // user messages (API rejects input_image with previous_response_id).
-      // So function-call-only turns (e.g. goto_url) will be "blind" — the
-      // model will request a screenshot on the next turn automatically.
-      nextInput = buildToolOutputs(
-        result.rawOutput,
-        resultShot.dataUrl,
-        functionResults,
-      );
+      if (CHEAP_MODE) {
+        // Append model's output items to conversation history
+        for (const item of result.rawOutput) {
+          conversationHistory.push(item);
+        }
+        // Append our tool outputs (with real screenshot for now)
+        const toolOutputs = buildToolOutputs(
+          result.rawOutput,
+          resultShot.dataUrl,
+          functionResults,
+        );
+        for (const item of toolOutputs) {
+          conversationHistory.push(item);
+        }
+        // Build input with old screenshots replaced by placeholders
+        nextInput = buildCheapInput(conversationHistory);
+      } else {
+        // Stateful: send tool outputs referencing previous_response_id
+        nextInput = buildToolOutputs(
+          result.rawOutput,
+          resultShot.dataUrl,
+          functionResults,
+        );
+      }
 
       // Check if stuck
       if (isStuck(recentScreenshots)) {
