@@ -117,6 +117,35 @@ Re-run confirmed bugs to verify they're reproducible. Re-test key passing flows.
 - **Bug**: something that exists but is broken (e.g. clicking a button does nothing, wrong error message, layout breaks)
 - **Missing feature**: something that doesn't exist yet (e.g. no keyboard shortcuts, no custom status)
 - File bugs as GitHub issues. Note missing features in the tracking file but don't file issues unless requested.
+- **When a new finding extends an existing issue**, comment on that issue rather than just noting "extends #N" in the tracking file. Otherwise the finding gets lost.
+
+## Screenshots in GitHub Issues
+
+Every GitHub issue should include relevant screenshots showing the bug. Without them, issues are just text — screenshots make bugs immediately obvious.
+
+### Storage Setup
+- Upload screenshots to a **public GCS bucket** (e.g. `gs://slawk-screenshots/`)
+- Public URL pattern: `https://storage.googleapis.com/BUCKET/FILENAME`
+- GitHub markdown auto-renders: `![description](https://storage.googleapis.com/BUCKET/FILENAME.png)`
+
+### Upload Flow
+```bash
+# Upload
+gcloud storage cp screenshots/<runId>/turn-N-result.png gs://BUCKET/issue-N-description.png
+
+# Comment on issue
+gh issue comment N --repo OWNER/REPO --body '![Bug screenshot](https://storage.googleapis.com/BUCKET/issue-N-description.png)'
+```
+
+### Picking the Right Screenshots
+- Read `run.json` to identify which turns show the bug (not always the last turn)
+- Include 1-3 screenshots: the action that triggered the bug and the result
+- Use descriptive filenames: `issue-7-newlines-expansion.png` not `screenshot1.png`
+- For issues with no visual component (e.g. missing keyboard shortcuts), skip screenshots
+
+### When to Add Screenshots
+- **At filing time** — include screenshots when first creating the issue, not as an afterthought
+- This should be part of the subagent's issue-filing flow: find screenshot → upload → include in issue body
 
 ## Common Bug Categories (SaaS)
 
@@ -133,6 +162,33 @@ Based on patterns observed across testing:
 | Layout | Long content, many newlines, overflow | Excessive expansion, missing max-height |
 | Uniqueness | Duplicate names, case sensitivity | Case-sensitive uniqueness checks |
 | Edit flows | Edit to empty, cancel edit | Silent failures, no validation feedback |
+
+## Mobile Testing
+
+### When to Test Mobile
+- After desktop testing is mostly done (desktop bugs are easier to find and reproduce)
+- Budget ~10% of runs for mobile — the hit rate is higher than late-stage desktop testing
+- In our experience: 33% bug rate on mobile vs 10% in late desktop runs
+
+### How to Trigger Mobile
+- Include device name in the prompt: "On an iPhone, go to..."
+- The QA service auto-detects and simulates the device (viewport, user agent, touch)
+- iPhone 14 (390x844) is a good default
+
+### What to Test on Mobile
+Focus on features that have different UIs on mobile vs desktop:
+1. **Navigation** — sidebar becomes hamburger menu, how do you switch channels?
+2. **Composer** — does formatting toolbar fit? Does attach button work?
+3. **Search** — is it accessible? May be hidden behind an icon
+4. **Notifications** — bell icon may be missing from mobile header
+5. **Actions on messages** — hover becomes tap, does the action bar appear?
+6. **Panels** — threads, files, pins, members — do they open/close correctly?
+7. **Layout** — long content, emoji reactions, channel headers
+
+### Mobile-Specific Bug Patterns
+- Desktop features that are **completely missing** on mobile (no search, no notifications)
+- Buttons that work on desktop but **don't respond to tap** (attach button)
+- Features that are **actually better on mobile** (e.g. thread close may work on mobile but not desktop)
 
 ## Efficiency Tips
 
