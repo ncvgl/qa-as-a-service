@@ -147,6 +147,29 @@ gh issue comment N --repo OWNER/REPO --body '![Bug screenshot](https://storage.g
 - **At filing time** — include screenshots when first creating the issue, not as an afterthought
 - This should be part of the subagent's issue-filing flow: find screenshot → upload → include in issue body
 
+## GitHub Issue Labels
+
+Every issue must have a **type label** and a **priority label** when filed.
+
+### Type Labels
+- `bug` — something that exists but is broken
+- `enhancement` — a missing feature or improvement request
+
+### Priority Labels
+- `priority: high` — blocks core functionality (e.g. file download broken, search missing on mobile)
+- `priority: medium` — important but not blocking (e.g. markdown rendering partial, case-sensitive uniqueness)
+- `priority: low` — nice to fix, not urgent (e.g. missing keyboard shortcuts, edit-to-empty no feedback)
+
+### How to Apply
+```bash
+gh issue edit N --repo OWNER/REPO --add-label "bug,priority: high"
+```
+
+### Priority Guidelines
+- **High**: feature completely broken or inaccessible, blocks a core user flow
+- **Medium**: feature partially works or has incorrect behavior, workarounds exist
+- **Low**: cosmetic, edge case, or missing convenience feature
+
 ## Common Bug Categories (SaaS)
 
 Based on patterns observed across testing:
