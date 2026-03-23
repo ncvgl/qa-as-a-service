@@ -83,6 +83,7 @@ ${envBlock}
 - If you are already on the correct page, do NOT call goto_url again. Use the computer tool to click, type, or scroll.
 - Be precise with coordinates — look at the screenshot carefully to target the exact position of UI elements.
 - After each action, you will receive a new screenshot showing the result.
+- **NEVER click file upload/attach buttons** (e.g. +, paperclip, "Choose file"). They open a native OS dialog that is INVISIBLE to you — the screenshot will look unchanged and you will think nothing happened. Instead, ALWAYS use the file_upload tool to upload files directly.
 - When done (whether successful or not), respond with a text message (no tool calls) using this exact format:
 
 RESULT: <pass|platform_bug|agent_failure>
