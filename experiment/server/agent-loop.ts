@@ -23,13 +23,14 @@ const PLACEHOLDER_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABC
 
 /**
  * Build the managed conversation history for cheap mode.
- * Includes all model outputs and tool outputs from previous turns,
- * but only keeps real screenshots in the last MAX_SCREENSHOTS entries.
+ * - Only keeps real screenshots in the last MAX_SCREENSHOTS entries
+ * - Only keeps reasoning summaries in the last MAX_SCREENSHOTS entries
+ * - Keeps ALL action/tool history (tiny tokens, valuable context)
  */
 function buildCheapInput(
   conversationHistory: Array<Record<string, unknown>>,
 ): Array<Record<string, unknown>> {
-  // Find indices of computer_call_output items that have a real screenshot
+  // Find indices of computer_call_output items (screenshot boundaries)
   const screenshotIndices: number[] = [];
   for (let i = 0; i < conversationHistory.length; i++) {
     if (conversationHistory[i].type === "computer_call_output") {
@@ -37,23 +38,43 @@ function buildCheapInput(
     }
   }
 
-  // Only keep screenshots in the last MAX_SCREENSHOTS outputs
-  const cutoff = screenshotIndices.length - MAX_SCREENSHOTS;
+  // Find indices of reasoning items
+  const reasoningIndices: number[] = [];
+  for (let i = 0; i < conversationHistory.length; i++) {
+    if (conversationHistory[i].type === "reasoning") {
+      reasoningIndices.push(i);
+    }
+  }
+
+  const screenshotCutoff = screenshotIndices.length - MAX_SCREENSHOTS;
+  const reasoningCutoff = reasoningIndices.length - MAX_SCREENSHOTS;
 
   return conversationHistory.map((item, idx) => {
-    if (item.type !== "computer_call_output") return item;
-
-    const screenshotRank = screenshotIndices.indexOf(idx);
-    if (screenshotRank >= 0 && screenshotRank < cutoff) {
-      // Strip this screenshot — replace with placeholder
-      return {
-        ...item,
-        output: {
-          type: "computer_screenshot",
-          image_url: PLACEHOLDER_IMG,
-        },
-      };
+    // Strip old screenshots → placeholder
+    if (item.type === "computer_call_output") {
+      const rank = screenshotIndices.indexOf(idx);
+      if (rank >= 0 && rank < screenshotCutoff) {
+        return {
+          ...item,
+          output: {
+            type: "computer_screenshot",
+            image_url: PLACEHOLDER_IMG,
+          },
+        };
+      }
     }
+
+    // Strip old reasoning → empty summary
+    if (item.type === "reasoning") {
+      const rank = reasoningIndices.indexOf(idx);
+      if (rank >= 0 && rank < reasoningCutoff) {
+        return {
+          ...item,
+          summary: [],
+        };
+      }
+    }
+
     return item;
   });
 }
