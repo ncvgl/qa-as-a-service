@@ -226,7 +226,8 @@ export async function runAgent(
         inputText: (!CHEAP_MODE && turnNum === 1) ? prompt : JSON.stringify(nextInput, (_key, val) => {
           // Truncate base64 image data for display
           if (typeof val === "string" && val.startsWith("data:image/")) {
-            return val.slice(0, 40) + "...[base64 screenshot]";
+            const isPlaceholder = val.includes("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4");
+            return isPlaceholder ? "[placeholder 1x1 — 0 tokens]" : val.slice(0, 40) + "...[real screenshot ~1600 tokens]";
           }
           return val;
         }, 2),
