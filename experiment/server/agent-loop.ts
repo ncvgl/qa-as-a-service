@@ -154,7 +154,9 @@ function buildCompressedInput(
   // Flush any remaining action without page context
   if (pendingAction) summaryLines.push(pendingAction);
 
-  const summaryText = `Task: ${prompt}\n\nPrevious actions:\n${summaryLines.join("\n")}`;
+  const summaryText = summaryLines.length > 0
+    ? `Previous actions:\n${summaryLines.join("\n")}`
+    : "No previous actions.";
 
   // Build compressed input: text summary + last turn structured items (skip _page_context)
   const result: Array<Record<string, unknown>> = [
@@ -173,7 +175,7 @@ function buildCompressedInput(
   return result;
 }
 
-function buildSystemInstructions(device: DeviceConfig): string {
+function buildSystemInstructions(device: DeviceConfig, taskPrompt?: string): string {
   const isDesktop = !device.isMobile;
 
   const envBlock = isDesktop
@@ -207,7 +209,7 @@ DETAILS: <what you observed that led to this conclusion>
 
 Use "pass" when the task was completed as requested.
 Use "platform_bug" when the website/application is broken, unresponsive, shows error messages, or behaves unexpectedly (e.g. buttons don't work, pages fail to load, features are missing). This means the platform under test has a bug.
-Use "agent_failure" when you were unable to complete the task due to your own limitations (e.g. could not find an element, misclicked, got confused by the UI).`;
+Use "agent_failure" when you were unable to complete the task due to your own limitations (e.g. could not find an element, misclicked, got confused by the UI).${taskPrompt ? `\n\n**Your task:** ${taskPrompt}` : ""}`;
 }
 
 function parseVerdict(run: Run): void {
@@ -345,7 +347,7 @@ export async function runAgent(
       const apiStart = Date.now();
       const result: FullModelResult = await callModel({
         input: nextInput,
-        instructions: buildSystemInstructions(device),
+        instructions: buildSystemInstructions(device, MODE === "compressed" ? prompt : undefined),
         previousResponseId: MODE !== "stateful" ? undefined : previousResponseId,
         signal,
         includeGotoUrl: true,
