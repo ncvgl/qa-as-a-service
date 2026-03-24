@@ -169,7 +169,18 @@ function buildCompressedInput(
   for (let i = lastTurnStart; i < conversationHistory.length; i++) {
     const item = conversationHistory[i];
     if (item.type === "_page_context") continue;
-    result.push(item);
+    // Strip `id` fields from structured items — they reference a previous_response_id
+    // chain that doesn't exist in compressed mode, causing validation errors
+    const { id: _id, ...itemWithoutId } = item as Record<string, unknown>;
+    // Fill empty reasoning summaries
+    if (itemWithoutId.type === "reasoning") {
+      const summary = itemWithoutId.summary as Array<Record<string, unknown>> | undefined;
+      if (!summary || summary.length === 0) {
+        result.push({ ...itemWithoutId, summary: [{ type: "summary_text", text: "Continuing." }] });
+        continue;
+      }
+    }
+    result.push(itemWithoutId);
   }
 
   return result;
