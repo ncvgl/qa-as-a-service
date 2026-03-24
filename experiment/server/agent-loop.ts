@@ -10,10 +10,9 @@ import type { Run, Turn, SSEEvent, Verdict } from "./types.js";
 const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
 
 // ── Mode toggle ──
-// "compressed" = text summary for old turns + last turn structured (cheapest)
-// "cheap"      = full structured history, old screenshots/reasoning stripped
-// "stateful"   = previous_response_id, full history (most expensive)
-const MODE: "compressed" | "cheap" | "stateful" = "compressed";
+// "cheap"    = manual conversation history, old screenshots/reasoning stripped
+// "stateful" = previous_response_id, full history (most expensive)
+const MODE: "cheap" | "stateful" = "cheap";
 
 // How many recent screenshots to keep in the conversation history.
 // Older computer_call_output items get a 1x1 transparent placeholder.
@@ -31,8 +30,7 @@ const PLACEHOLDER_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABC
 function buildCheapInput(
   conversationHistory: Array<Record<string, unknown>>,
 ): Array<Record<string, unknown>> {
-  // Filter out internal markers first
-  const items = conversationHistory.filter((item) => item.type !== "_page_context");
+  const items = conversationHistory;
 
   // Find indices of screenshots and reasoning in the filtered array
   const screenshotIndices: number[] = [];
@@ -75,118 +73,7 @@ function buildCheapInput(
   });
 }
 
-/**
- * Compressed mode: older turns become a text summary, only the last turn
- * keeps structured protocol items (computer_call + computer_call_output).
- */
-function buildCompressedInput(
-  conversationHistory: Array<Record<string, unknown>>,
-  prompt: string,
-): Array<Record<string, unknown>> {
-  // Find the last computer_call_output (the boundary of the "last turn")
-  let lastOutputIdx = -1;
-  for (let i = conversationHistory.length - 1; i >= 0; i--) {
-    if (conversationHistory[i].type === "computer_call_output" ||
-        conversationHistory[i].type === "function_call_output") {
-      lastOutputIdx = i;
-      break;
-    }
-  }
-
-  // Find the start of the last turn's structured items:
-  // walk backwards from lastOutputIdx to find the reasoning/computer_call/function_call
-  // Skip _page_context markers during the walk
-  let lastTurnStart = lastOutputIdx;
-  for (let i = lastOutputIdx - 1; i >= 0; i--) {
-    const t = conversationHistory[i].type;
-    if (t === "_page_context") continue; // skip our internal markers
-    if (t === "reasoning" || t === "computer_call" || t === "function_call") {
-      lastTurnStart = i;
-    } else {
-      break;
-    }
-  }
-
-  // If not enough history for compression, fall back to cheap mode
-  if (lastTurnStart <= 1) {
-    return buildCheapInput(conversationHistory);
-  }
-
-  // Build text summary of actions + results + page context (no reasoning)
-  const summaryLines: string[] = [];
-  let pendingAction = "";
-  for (let i = 1; i < lastTurnStart; i++) { // skip index 0 (user message)
-    const item = conversationHistory[i];
-    if (item.type === "computer_call") {
-      const actions = item.actions as Array<Record<string, unknown>>;
-      const actionStrs = actions.map((a) => {
-        if (a.type === "screenshot") return "screenshot()";
-        if (a.type === "click") return `click(${a.x},${a.y})`;
-        if (a.type === "type") return `type("${String(a.text).slice(0, 40)}")`;
-        if (a.type === "keypress") return `keypress(${(a.keys as string[]).join("+")})`;
-        if (a.type === "scroll") return `scroll(${a.x},${a.y},${a.scroll_x},${a.scroll_y})`;
-        if (a.type === "double_click") return `double_click(${a.x},${a.y})`;
-        if (a.type === "wait") return `wait(${a.ms}ms)`;
-        return String(a.type);
-      });
-      pendingAction = actionStrs.join(", ");
-    } else if (item.type === "function_call") {
-      const name = item.name as string;
-      const args = item.arguments as string;
-      pendingAction = `${name}(${args.slice(0, 60)})`;
-    } else if (item.type === "function_call_output") {
-      // Append result to pending action
-      if (pendingAction) {
-        pendingAction += ` → ${String(item.output).slice(0, 80)}`;
-      }
-    } else if (item.type === "_page_context") {
-      // Flush pending action with page context
-      const url = String(item.url || "").replace(/^https?:\/\//, "");
-      const title = String(item.title || "");
-      const ctx = title ? `${url} "${title}"` : url;
-      if (pendingAction) {
-        summaryLines.push(`${pendingAction} → ${ctx}`);
-        pendingAction = "";
-      }
-    }
-    // Skip reasoning and computer_call_output — not useful in summary
-  }
-  // Flush any remaining action without page context
-  if (pendingAction) summaryLines.push(pendingAction);
-
-  const summaryText = summaryLines.length > 0
-    ? `Previous actions:\n${summaryLines.join("\n")}`
-    : "No previous actions.";
-
-  // Build compressed input: text summary + last turn structured items (skip _page_context)
-  const result: Array<Record<string, unknown>> = [
-    {
-      role: "user",
-      content: [{ type: "input_text", text: summaryText }],
-    },
-  ];
-
-  for (let i = lastTurnStart; i < conversationHistory.length; i++) {
-    const item = conversationHistory[i];
-    if (item.type === "_page_context") continue;
-    // Strip `id` fields from structured items — they reference a previous_response_id
-    // chain that doesn't exist in compressed mode, causing validation errors
-    const { id: _id, ...itemWithoutId } = item as Record<string, unknown>;
-    // Fill empty reasoning summaries
-    if (itemWithoutId.type === "reasoning") {
-      const summary = itemWithoutId.summary as Array<Record<string, unknown>> | undefined;
-      if (!summary || summary.length === 0) {
-        result.push({ ...itemWithoutId, summary: [{ type: "summary_text", text: "Continuing." }] });
-        continue;
-      }
-    }
-    result.push(itemWithoutId);
-  }
-
-  return result;
-}
-
-function buildSystemInstructions(device: DeviceConfig, taskPrompt?: string): string {
+function buildSystemInstructions(device: DeviceConfig): string {
   const isDesktop = !device.isMobile;
 
   const envBlock = isDesktop
@@ -220,7 +107,7 @@ DETAILS: <what you observed that led to this conclusion>
 
 Use "pass" when the task was completed as requested.
 Use "platform_bug" when the website/application is broken, unresponsive, shows error messages, or behaves unexpectedly (e.g. buttons don't work, pages fail to load, features are missing). This means the platform under test has a bug.
-Use "agent_failure" when you were unable to complete the task due to your own limitations (e.g. could not find an element, misclicked, got confused by the UI).${taskPrompt ? `\n\n**Your task:** ${taskPrompt}` : ""}`;
+Use "agent_failure" when you were unable to complete the task due to your own limitations (e.g. could not find an element, misclicked, got confused by the UI).`;
 }
 
 function parseVerdict(run: Run): void {
@@ -298,9 +185,7 @@ export async function runAgent(
         content: [{ type: "input_text", text: prompt }],
       };
       conversationHistory.push(userMsg);
-      nextInput = MODE === "compressed"
-        ? buildCompressedInput(conversationHistory, prompt)
-        : buildCheapInput(conversationHistory);
+      nextInput = buildCheapInput(conversationHistory);
     } else {
       // Stateful: text-only first request per CUA docs
       nextInput = prompt;
@@ -358,7 +243,7 @@ export async function runAgent(
       const apiStart = Date.now();
       const result: FullModelResult = await callModel({
         input: nextInput,
-        instructions: buildSystemInstructions(device, MODE === "compressed" ? prompt : undefined),
+        instructions: buildSystemInstructions(device),
         previousResponseId: MODE !== "stateful" ? undefined : previousResponseId,
         signal,
         includeGotoUrl: true,
@@ -504,16 +389,8 @@ export async function runAgent(
         for (const item of toolOutputs) {
           conversationHistory.push(item);
         }
-        // Add page context marker (used by compressed mode summary, stripped before sending)
-        conversationHistory.push({
-          type: "_page_context",
-          url: turn.pageUrl || "",
-          title: turn.pageTitle || "",
-        });
-        // Build input based on mode
-        nextInput = MODE === "compressed"
-          ? buildCompressedInput(conversationHistory, prompt)
-          : buildCheapInput(conversationHistory);
+        // Build input with old screenshots/reasoning replaced
+        nextInput = buildCheapInput(conversationHistory);
       } else {
         // Stateful: send tool outputs referencing previous_response_id
         nextInput = buildToolOutputs(
