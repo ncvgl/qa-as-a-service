@@ -10,9 +10,10 @@ import type { Run, Turn, SSEEvent, Verdict } from "./types.js";
 const SCREENSHOTS_BASE = path.join(process.cwd(), "screenshots");
 
 // ── Mode toggle ──
-// true  = cheap: manual conversation history, screenshots only in last N turns
-// false = stateful: previous_response_id, full screenshot history (expensive)
-const CHEAP_MODE = true;
+// "compressed" = text summary for old turns + last turn structured (cheapest)
+// "cheap"      = full structured history, old screenshots/reasoning stripped
+// "stateful"   = previous_response_id, full history (most expensive)
+const MODE: "compressed" | "cheap" | "stateful" = "compressed";
 
 // How many recent screenshots to keep in the conversation history.
 // Older computer_call_output items get a 1x1 transparent placeholder.
@@ -30,26 +31,21 @@ const PLACEHOLDER_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABC
 function buildCheapInput(
   conversationHistory: Array<Record<string, unknown>>,
 ): Array<Record<string, unknown>> {
-  // Find indices of computer_call_output items (screenshot boundaries)
-  const screenshotIndices: number[] = [];
-  for (let i = 0; i < conversationHistory.length; i++) {
-    if (conversationHistory[i].type === "computer_call_output") {
-      screenshotIndices.push(i);
-    }
-  }
+  // Filter out internal markers first
+  const items = conversationHistory.filter((item) => item.type !== "_page_context");
 
-  // Find indices of reasoning items
+  // Find indices of screenshots and reasoning in the filtered array
+  const screenshotIndices: number[] = [];
   const reasoningIndices: number[] = [];
-  for (let i = 0; i < conversationHistory.length; i++) {
-    if (conversationHistory[i].type === "reasoning") {
-      reasoningIndices.push(i);
-    }
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type === "computer_call_output") screenshotIndices.push(i);
+    if (items[i].type === "reasoning") reasoningIndices.push(i);
   }
 
   const screenshotCutoff = screenshotIndices.length - MAX_SCREENSHOTS;
   const reasoningCutoff = reasoningIndices.length - MAX_SCREENSHOTS;
 
-  return conversationHistory.map((item, idx) => {
+  return items.map((item, idx) => {
     // Strip old screenshots → placeholder
     if (item.type === "computer_call_output") {
       const rank = screenshotIndices.indexOf(idx);
@@ -77,6 +73,104 @@ function buildCheapInput(
 
     return item;
   });
+}
+
+/**
+ * Compressed mode: older turns become a text summary, only the last turn
+ * keeps structured protocol items (computer_call + computer_call_output).
+ */
+function buildCompressedInput(
+  conversationHistory: Array<Record<string, unknown>>,
+  prompt: string,
+): Array<Record<string, unknown>> {
+  // Find the last computer_call_output (the boundary of the "last turn")
+  let lastOutputIdx = -1;
+  for (let i = conversationHistory.length - 1; i >= 0; i--) {
+    if (conversationHistory[i].type === "computer_call_output" ||
+        conversationHistory[i].type === "function_call_output") {
+      lastOutputIdx = i;
+      break;
+    }
+  }
+
+  // Find the start of the last turn's structured items:
+  // walk backwards from lastOutputIdx to find the reasoning/computer_call/function_call
+  // Skip _page_context markers during the walk
+  let lastTurnStart = lastOutputIdx;
+  for (let i = lastOutputIdx - 1; i >= 0; i--) {
+    const t = conversationHistory[i].type;
+    if (t === "_page_context") continue; // skip our internal markers
+    if (t === "reasoning" || t === "computer_call" || t === "function_call") {
+      lastTurnStart = i;
+    } else {
+      break;
+    }
+  }
+
+  // If not enough history for compression, fall back to cheap mode
+  if (lastTurnStart <= 1) {
+    return buildCheapInput(conversationHistory);
+  }
+
+  // Build text summary of actions + results + page context (no reasoning)
+  const summaryLines: string[] = [];
+  let pendingAction = "";
+  for (let i = 1; i < lastTurnStart; i++) { // skip index 0 (user message)
+    const item = conversationHistory[i];
+    if (item.type === "computer_call") {
+      const actions = item.actions as Array<Record<string, unknown>>;
+      const actionStrs = actions.map((a) => {
+        if (a.type === "screenshot") return "screenshot()";
+        if (a.type === "click") return `click(${a.x},${a.y})`;
+        if (a.type === "type") return `type("${String(a.text).slice(0, 40)}")`;
+        if (a.type === "keypress") return `keypress(${(a.keys as string[]).join("+")})`;
+        if (a.type === "scroll") return `scroll(${a.x},${a.y},${a.scroll_x},${a.scroll_y})`;
+        if (a.type === "double_click") return `double_click(${a.x},${a.y})`;
+        if (a.type === "wait") return `wait(${a.ms}ms)`;
+        return String(a.type);
+      });
+      pendingAction = actionStrs.join(", ");
+    } else if (item.type === "function_call") {
+      const name = item.name as string;
+      const args = item.arguments as string;
+      pendingAction = `${name}(${args.slice(0, 60)})`;
+    } else if (item.type === "function_call_output") {
+      // Append result to pending action
+      if (pendingAction) {
+        pendingAction += ` → ${String(item.output).slice(0, 80)}`;
+      }
+    } else if (item.type === "_page_context") {
+      // Flush pending action with page context
+      const url = String(item.url || "").replace(/^https?:\/\//, "");
+      const title = String(item.title || "");
+      const ctx = title ? `${url} "${title}"` : url;
+      if (pendingAction) {
+        summaryLines.push(`${pendingAction} → ${ctx}`);
+        pendingAction = "";
+      }
+    }
+    // Skip reasoning and computer_call_output — not useful in summary
+  }
+  // Flush any remaining action without page context
+  if (pendingAction) summaryLines.push(pendingAction);
+
+  const summaryText = `Task: ${prompt}\n\nPrevious actions:\n${summaryLines.join("\n")}`;
+
+  // Build compressed input: text summary + last turn structured items (skip _page_context)
+  const result: Array<Record<string, unknown>> = [
+    {
+      role: "user",
+      content: [{ type: "input_text", text: summaryText }],
+    },
+  ];
+
+  for (let i = lastTurnStart; i < conversationHistory.length; i++) {
+    const item = conversationHistory[i];
+    if (item.type === "_page_context") continue;
+    result.push(item);
+  }
+
+  return result;
 }
 
 function buildSystemInstructions(device: DeviceConfig): string {
@@ -184,14 +278,16 @@ export async function runAgent(
     const conversationHistory: Array<Record<string, unknown>> = [];
 
     let nextInput: unknown;
-    if (CHEAP_MODE) {
+    if (MODE !== "stateful") {
       // Seed with the user prompt as first message
       const userMsg = {
         role: "user",
         content: [{ type: "input_text", text: prompt }],
       };
       conversationHistory.push(userMsg);
-      nextInput = buildCheapInput(conversationHistory);
+      nextInput = MODE === "compressed"
+        ? buildCompressedInput(conversationHistory, prompt)
+        : buildCheapInput(conversationHistory);
     } else {
       // Stateful: text-only first request per CUA docs
       nextInput = prompt;
@@ -223,7 +319,7 @@ export async function runAgent(
       const turn: Turn = {
         turn: turnNum,
         status: "running",
-        inputText: (!CHEAP_MODE && turnNum === 1) ? prompt : JSON.stringify(nextInput, (_key, val) => {
+        inputText: (MODE === "stateful" && turnNum === 1) ? prompt : JSON.stringify(nextInput, (_key, val) => {
           // Truncate base64 image data for display
           if (typeof val === "string" && val.startsWith("data:image/")) {
             const isPlaceholder = val.includes("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4");
@@ -250,13 +346,13 @@ export async function runAgent(
       const result: FullModelResult = await callModel({
         input: nextInput,
         instructions: buildSystemInstructions(device),
-        previousResponseId: CHEAP_MODE ? undefined : previousResponseId,
+        previousResponseId: MODE !== "stateful" ? undefined : previousResponseId,
         signal,
         includeGotoUrl: true,
       });
       turn.apiDurationMs = Date.now() - apiStart;
 
-      if (!CHEAP_MODE) {
+      if (MODE === "stateful") {
         previousResponseId = result.responseId;
       }
 
@@ -381,7 +477,7 @@ export async function runAgent(
         turn.pageTitle = await session.page.title();
       } catch { /* page might be navigating */ }
 
-      if (CHEAP_MODE) {
+      if (MODE !== "stateful") {
         // Append model's output items to conversation history
         for (const item of result.rawOutput) {
           conversationHistory.push(item);
@@ -395,8 +491,16 @@ export async function runAgent(
         for (const item of toolOutputs) {
           conversationHistory.push(item);
         }
-        // Build input with old screenshots replaced by placeholders
-        nextInput = buildCheapInput(conversationHistory);
+        // Add page context marker (used by compressed mode summary, stripped before sending)
+        conversationHistory.push({
+          type: "_page_context",
+          url: turn.pageUrl || "",
+          title: turn.pageTitle || "",
+        });
+        // Build input based on mode
+        nextInput = MODE === "compressed"
+          ? buildCompressedInput(conversationHistory, prompt)
+          : buildCheapInput(conversationHistory);
       } else {
         // Stateful: send tool outputs referencing previous_response_id
         nextInput = buildToolOutputs(
