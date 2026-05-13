@@ -1,5 +1,7 @@
 # QA as a Service
 
+![Screenshot](screenshot.png)
+
 Drive a real browser with OpenAI's Computer-Use model to execute end-to-end QA prompts and report results.
 
 ## Setup
