@@ -149,23 +149,29 @@ gh issue comment N --repo OWNER/REPO --body '![Bug screenshot](https://storage.g
 
 ## GitHub Issue Labels
 
-Every issue must have a **type label** and a **priority label** when filed.
+Every issue must have a **type label** and a **priority label** at filing time — not as an afterthought. Include both labels in the `gh issue create` command or add them immediately after with `gh issue edit`.
 
 ### Type Labels
 - `bug` — something that exists but is broken
 - `enhancement` — a missing feature or improvement request
 
 ### Priority Labels
-- `priority: high` — blocks core functionality (e.g. file download broken, search missing on mobile)
-- `priority: medium` — important but not blocking (e.g. markdown rendering partial, case-sensitive uniqueness)
-- `priority: low` — nice to fix, not urgent (e.g. missing keyboard shortcuts, edit-to-empty no feedback)
+- `priority:critical` — app crashes, data loss, security issues
+- `priority:high` — feature doesn't work at all, blocks a core user flow
+- `priority:medium` — feature partially works or has incorrect behavior, workarounds exist
+- `priority:low` — visual/UX polish, minor inconsistencies, edge cases
 
 ### How to Apply
 ```bash
-gh issue edit N --repo OWNER/REPO --add-label "bug,priority: high"
+# At creation time (preferred):
+gh issue create --repo OWNER/REPO --title "..." --label "bug,priority:medium" --body "..."
+
+# Or immediately after:
+gh issue edit N --repo OWNER/REPO --add-label "bug,priority:medium"
 ```
 
 ### Priority Guidelines
+- **Critical**: app crashes, data loss, security vulnerabilities
 - **High**: feature completely broken or inaccessible, blocks a core user flow
 - **Medium**: feature partially works or has incorrect behavior, workarounds exist
 - **Low**: cosmetic, edge case, or missing convenience feature
