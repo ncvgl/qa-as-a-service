@@ -2,7 +2,9 @@
 
 ![Screenshot](screenshot.png)
 
-Drive a real browser with OpenAI's Computer-Use model to execute end-to-end QA prompts and report results.
+**POC** for letting Claude Code (or any other coding agent) QA your app in batch by firing QA jobs at this service over HTTP — each job runs on a real browser, on any device you specify in the prompt, and returns a structured pass / bug / agent-failure verdict the calling agent can act on.
+
+Under the hood it drives the browser with OpenAI's Computer-Use model.
 
 ## Setup
 
