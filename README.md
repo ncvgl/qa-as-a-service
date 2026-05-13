@@ -1,6 +1,7 @@
 # QA as a Service
 
 ![Screenshot](screenshot.png)
+![Screenshot](screenshot-2.png)
 
 **POC** for letting Claude Code (or any other coding agent) QA your app in batch by firing QA jobs at this service over HTTP — each job runs on a real browser, on any device you specify in the prompt, and returns a structured pass / bug / agent-failure verdict the calling agent can act on.
 
