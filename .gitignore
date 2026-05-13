@@ -8,6 +8,7 @@ slawk_bug_hunt.md
 # Secrets
 .env
 .env.*
+!.env.example
 
 # OS
 .DS_Store
