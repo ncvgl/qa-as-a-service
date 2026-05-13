@@ -3,9 +3,7 @@
 ![Screenshot](screenshot.png)
 ![Screenshot](screenshot-2.png)
 
-**POC** for letting Claude Code (or any other coding agent) QA your app in batch by firing QA jobs at this service over HTTP — each job runs on a real browser, on any device you specify in the prompt, and returns a structured pass / bug / agent-failure verdict the calling agent can act on.
-
-Under the hood it drives the browser with OpenAI's Computer-Use model.
+**POC.** Let Claude Code QA your app while it codes. Fire a batch of QA prompts at this service over HTTP, watch each one drive a real browser on the device of your choice — desktop, iPhone, Pixel, iPad — and read back a structured `pass / bug / agent_failure` verdict your agent can act on. Powered by OpenAI's Computer-Use model.
 
 ## Setup
 
