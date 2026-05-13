@@ -9,10 +9,11 @@ pnpm install
 pnpm exec playwright install chromium
 ```
 
-Create `.env` at the repo root:
+Copy `.env.example` to `.env` and fill in your key:
 
-```
-OPENAI_API_KEY=sk-...
+```bash
+cp .env.example .env
+# then edit .env and set OPENAI_API_KEY=sk-...
 ```
 
 ## Start
