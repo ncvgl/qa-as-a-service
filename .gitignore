@@ -1,23 +1,13 @@
+node_modules/
+.next/
+screenshots/
+*.tsbuildinfo
+next-env.d.ts
+slawk_bug_hunt.md
+
 # Secrets
 .env
 .env.*
-
-# Python
-__pycache__/
-.venv/
-env/
-*.pyc
-
-# Node
-node_modules/
-.next/
-dist/
-coverage/
-*.tsbuildinfo
-
-# Data / outputs
-data/
-cua_outputs/
 
 # OS
 .DS_Store
