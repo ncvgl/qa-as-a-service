@@ -110,3 +110,39 @@ The agent runs in `"cheap"` mode by default ([`server/agent-loop.ts`](server/age
 - **All action history is kept.** Tool calls, function calls, `goto_url`s, and verdict-format instructions are tiny in tokens but high-value context — the model needs to know what it has already tried.
 
 The result: input tokens per turn stay roughly flat regardless of run length, instead of growing linearly with the number of turns. The alternative `"stateful"` mode (toggleable in `agent-loop.ts`) uses `previous_response_id` and pays full price for the entire history — useful as a baseline to measure the savings against.
+
+### Stuck detection
+
+After each turn, the new screenshot is compared pixel-by-pixel against recent ones ([`server/stuck-detector.ts`](server/stuck-detector.ts)). When the last 5 consecutive screenshots are identical, the run is marked `stuck` and aborts — saves API spend when the model is clicking into the void on a hung or non-responsive page.
+
+## Models
+
+- **Main agent loop** — OpenAI's Computer-Use model. Default `gpt-5.4`, overridable via `CUA_DEFAULT_MODEL`.
+- **Device extraction** — `gpt-4o-mini`, called once per run before the loop starts to map the prompt to one of the seven device presets.
+
+## What you get back per run
+
+`GET /api/run/:id/data` returns the full `Run` object ([`server/types.ts`](server/types.ts)):
+
+- **Top-level** — `id`, `prompt`, `state` (`running | completed | fail | stuck`), `verdict` (`pass | platform_bug | agent_failure | null`), `verdictSummary`, `verdictDetails`, `device`, `deviceLabel`, `startedAt`, `finishedAt`, `error`, `maxTurns`, `finalMessage`.
+- **`turns[]`** — for each turn: the input text, input screenshot URL, the model's raw output + extracted actions/function calls/message, the action descriptions actually executed, the resulting screenshot URL plus per-action screenshot URLs, the final `pageUrl` / `pageTitle`, a token-usage breakdown (`input` / `output` / `reasoning`), and timing (`durationMs`, `apiDurationMs`).
+
+Other artifacts on disk under `screenshots/<runId>/`:
+- `run.json` — the same `Run` object, persisted on completion.
+- `turn-N-input.png`, `turn-N-action-K.png`, `turn-N-result.png` — every screenshot the run produced.
+- `run.mp4` — a stitched video of the run, served at `GET /api/run/:id/video`.
+
+## Cost
+
+Computer-Use is not cheap. Each turn sends a fresh screenshot (~1.6k input tokens) plus reasoning tokens, and a run can use a few to a few dozen turns. Cheap mode keeps input tokens per turn roughly flat — without it, a 20-turn run can easily 5–10× its cost compared to the same run in cheap mode. Keep an eye on your OpenAI usage dashboard when running batches.
+
+## Limitations (POC scope)
+
+This is a proof of concept, not production infrastructure. Intentionally missing:
+
+- **No auth, no rate limiting.** Anyone who can reach the server can submit runs and burn your OpenAI budget. Don't expose it to the public internet as-is.
+- **No DB.** Runs are persisted to the filesystem (`screenshots/<runId>/run.json`). Nuking that directory loses all history. In-flight runs only exist in memory — if the server restarts mid-run, that run is lost.
+- **Single machine.** Each run launches its own Playwright Chromium; parallelism is bounded by your local RAM/CPU and OpenAI rate limits. No queue, no worker pool.
+- **30-turn hard cap** per run ([`server/index.ts`](server/index.ts)).
+- **Native OS dialogs are invisible** to the model. File pickers must be driven through the `file_upload` tool, not by clicking the "+" button. JS `alert` / `confirm` / `prompt` will block the page and stall the run.
+- **No retries** on transient OpenAI / network errors.
