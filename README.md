@@ -3,9 +3,11 @@
 ![Screenshot](screenshot.png)
 ![Screenshot](screenshot-2.png)
 
-**POC.** Let Claude Code QA your app while it codes. Fire a batch of QA prompts at this service over HTTP, watch each one drive a real browser on the device of your choice — desktop, iPhone, Pixel, iPad — and read back a structured `pass / bug / agent_failure` verdict your agent can act on. Powered by OpenAI's Computer-Use model.
+**POC.** Let Claude Code QA your app while it codes. Fire a batch of QA prompts at this service over HTTP, watch each one drive a real browser on the device of your choice — desktop, iPhone, Pixel, iPad — and read back a structured `pass / platform_bug / agent_failure` verdict your agent can act on. Powered by OpenAI's Computer-Use model.
 
 ## Setup
+
+Requires Node 20+ and pnpm 9+.
 
 ```bash
 pnpm install
@@ -42,7 +44,7 @@ curl -sX POST http://localhost:4001/api/run \
   -d '{"prompt":"Go to example.com and check the homepage loads."}'
 # → {"runId":"<uuid>"}
 
-# 2. Stream live progress (SSE, optional)
+# 2. Stream live progress (SSE, optional — see TurnEvent / RunCompleteEvent in server/types.ts for the payload shape)
 curl -N http://localhost:4001/api/run/<runId>/events
 
 # 3. Fetch the full result (works during or after the run)
@@ -109,7 +111,7 @@ The agent runs in `"cheap"` mode by default ([`server/agent-loop.ts`](server/age
 - **Old reasoning → empty summary.** Reasoning summaries are dropped from older turns the same way.
 - **All action history is kept.** Tool calls, function calls, `goto_url`s, and verdict-format instructions are tiny in tokens but high-value context — the model needs to know what it has already tried.
 
-The result: input tokens per turn stay roughly flat regardless of run length, instead of growing linearly with the number of turns. The alternative `"stateful"` mode (toggleable in `agent-loop.ts`) uses `previous_response_id` and pays full price for the entire history — useful as a baseline to measure the savings against.
+The result: input tokens per turn stay roughly flat regardless of run length, instead of growing linearly with the number of turns. The alternative `"stateful"` mode (edit the `MODE` const at the top of `server/agent-loop.ts`) uses `previous_response_id` and pays full price for the entire history — useful as a baseline to measure the savings against.
 
 ### Stuck detection
 
@@ -117,8 +119,8 @@ After each turn, the new screenshot is compared pixel-by-pixel against recent on
 
 ## Models
 
-- **Main agent loop** — OpenAI's Computer-Use model. Default `gpt-5.4`, overridable via `CUA_DEFAULT_MODEL`.
-- **Device extraction** — `gpt-4o-mini`, called once per run before the loop starts to map the prompt to one of the seven device presets.
+- **Main agent loop** — OpenAI's Computer-Use model: a vision-grounded agent that takes screenshots as input and emits mouse/keyboard actions as output. Default is whatever is set in `server/openai.ts` (currently `gpt-5.4`); override via the `CUA_DEFAULT_MODEL` env var.
+- **Device extraction** — `gpt-4o-mini`, called once per run before the loop starts to map the prompt to one of the device presets (defaults to `desktop` when no device is mentioned).
 
 ## What you get back per run
 

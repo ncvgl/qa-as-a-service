@@ -37,7 +37,7 @@ export function isStuck(recentBuffers: Buffer[]): boolean {
   // Check that the last STUCK_CONSECUTIVE-1 consecutive pairs are all similar
   for (let i = 1; i < STUCK_CONSECUTIVE; i++) {
     const sim = compareScreenshots(recentBuffers[len - i - 1], recentBuffers[len - i]);
-    if (sim <= STUCK_THRESHOLD) return false;
+    if (sim < STUCK_THRESHOLD) return false;
   }
 
   return true;
