@@ -1,0 +1,11 @@
+# CPU-only. Install torch from the CPU index:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.6
+transformers>=4.51
+accelerate
+sentence-transformers>=3.0
+numpy
+# Optional (GGUF speed benchmarks only; logits path SIGILLs on some CPUs):
+# llama-cpp-python>=0.3
+# huggingface_hub
+# sentencepiece  # only for converting HF -> F32 GGUF

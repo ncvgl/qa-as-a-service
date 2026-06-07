@@ -1,0 +1,534 @@
+[
+  {
+    "prompt": "Why did Rome fall?",
+    "greedy_full": "The fall of the Roman Empire was a complex and multifaceted process that involved a combination of internal and external factors. The Western Roman Empire fell in 476 AD, while the Eastern Roman Empire (Byzantine Empire) continued for another 1,100 years. Here's a detailed breakdown of the key reasons:\n\n### 1. **Political Instability and Corruption**\n- **Frequent Changes in Leadership**: The Roman Empire had a system of emperors who often came to power through assassination, coup, or military support. This led to a lack of stable leadership.\n- **Corruption and Mismanagement**: Emperors and officials were often corrupt, leading to poor governance and a lack of public trust.\n- **Division of Power**: The empire was divided into the Western and Eastern halves, which led to a lack of unity and coordination.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to",
+    "spikes_entropy": [
+      {
+        "pos": 125,
+        "H": 3.02,
+        "spread": 0.428
+      },
+      {
+        "pos": 150,
+        "H": 3.66,
+        "spread": 0.447
+      },
+      {
+        "pos": 168,
+        "H": 3.05,
+        "spread": 0.429
+      }
+    ],
+    "spikes_spread": [
+      {
+        "pos": 90,
+        "H": 2.36,
+        "spread": 0.52
+      },
+      {
+        "pos": 150,
+        "H": 3.66,
+        "spread": 0.447
+      },
+      {
+        "pos": 168,
+        "H": 3.05,
+        "spread": 0.429
+      }
+    ],
+    "cand_pos_scores": [
+      {
+        "pos": 90,
+        "H": 2.36,
+        "spread": 0.52
+      },
+      {
+        "pos": 150,
+        "H": 3.66,
+        "spread": 0.447
+      },
+      {
+        "pos": 168,
+        "H": 3.05,
+        "spread": 0.429
+      },
+      {
+        "pos": 125,
+        "H": 3.02,
+        "spread": 0.428
+      },
+      {
+        "pos": 92,
+        "H": 2.67,
+        "spread": 0.41
+      },
+      {
+        "pos": 109,
+        "H": 2.86,
+        "spread": 0.356
+      },
+      {
+        "pos": 142,
+        "H": 2.33,
+        "spread": 0.307
+      },
+      {
+        "pos": 105,
+        "H": 3.0,
+        "spread": 0.177
+      }
+    ],
+    "branches_entropy": [
+      {
+        "pos": 125,
+        "tok": " Mis",
+        "prob": 0.30859375,
+        "is_greedy": true,
+        "text": "Mismanagement**: Corruption was widespread, with officials often more interested in personal gain than in the welfare of the empire.\n- **Division of Power**: The empire was divided into the Western and Eastern halves, which led to a lack of unity and coordination.\n\n### 2. **E"
+      },
+      {
+        "pos": 125,
+        "tok": " B",
+        "prob": 0.2734375,
+        "is_greedy": false,
+        "text": "Bureaucracy**: The government became increasingly corrupt, with officials often more interested in personal gain than in the welfare of the empire.\n- **Division of Power**: The empire was divided into the Western and Eastern halves, which led to a lack of unity and coordination.\n\n###"
+      },
+      {
+        "pos": 125,
+        "tok": " Abuse",
+        "prob": 0.2119140625,
+        "is_greedy": false,
+        "text": "Abuse of Power**: Emperors and officials often acted in self-interest, leading to corruption and a breakdown of the legal and administrative systems.\n- **Division of Power**: The empire was divided into the Western and Eastern halves, which led to a lack of unity and coordination.\n\n###"
+      },
+      {
+        "pos": 125,
+        "tok": " In",
+        "prob": 0.060791015625,
+        "is_greedy": false,
+        "text": "Inefficiency**: Corruption was widespread, and the bureaucracy became inefficient. Officials often acted in self-interest rather than for the good of the state.\n- **Division of Power**: The empire was divided into the Western and Eastern halves, which led to a lack of unity and coordination."
+      },
+      {
+        "pos": 150,
+        "tok": "Division",
+        "prob": 0.484375,
+        "is_greedy": true,
+        "text": "Division of Power**: The empire was divided into the Western and Eastern halves, which led to a lack of unity and coordination.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy,"
+      },
+      {
+        "pos": 150,
+        "tok": "Weak",
+        "prob": 0.044921875,
+        "is_greedy": false,
+        "text": "Weak Central Authority**: The empire became increasingly decentralized, with local governors and military commanders gaining more power, weakening the central government.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy,"
+      },
+      {
+        "pos": 150,
+        "tok": "Div",
+        "prob": 0.044921875,
+        "is_greedy": false,
+        "text": "Divided Government**: The empire was often split into two parts (the Western and Eastern Empires), leading to administrative inefficiencies and a lack of unity.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to"
+      },
+      {
+        "pos": 150,
+        "tok": "Civil",
+        "prob": 0.039794921875,
+        "is_greedy": false,
+        "text": "Civil Wars**: Frequent civil wars weakened the empire and drained resources.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens, leading to economic hardship and rebellion.\n- **Inflation and Currency Devaluation**: The"
+      },
+      {
+        "pos": 168,
+        "tok": " a",
+        "prob": 0.232421875,
+        "is_greedy": true,
+        "text": "a lack of unity and coordination.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value of the"
+      },
+      {
+        "pos": 168,
+        "tok": " administrative",
+        "prob": 0.232421875,
+        "is_greedy": false,
+        "text": "administrative inefficiencies and a lack of unity.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value"
+      },
+      {
+        "pos": 168,
+        "tok": " political",
+        "prob": 0.205078125,
+        "is_greedy": false,
+        "text": "political fragmentation and a lack of unity.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value of"
+      },
+      {
+        "pos": 168,
+        "tok": " competition",
+        "prob": 0.140625,
+        "is_greedy": false,
+        "text": "competition and weakened central authority.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value of the Roman"
+      }
+    ],
+    "branches_spread": [
+      {
+        "pos": 90,
+        "tok": " had",
+        "prob": 0.40234375,
+        "is_greedy": true,
+        "text": "had a system of emperors who often came to power through assassination, coup, or military support. This led to a lack of stable leadership.\n- **Corruption and Bureaucracy**: The government became increasingly corrupt, with officials often more interested in personal gain than"
+      },
+      {
+        "pos": 90,
+        "tok": " experienced",
+        "prob": 0.2158203125,
+        "is_greedy": false,
+        "text": "experienced a constant cycle of emperors, many of whom were not well-qualified or effective rulers. Some were assassinated, others were deposed by military leaders.\n- **Corruption and Bureaucracy**: The government became increasingly corrupt, with officials often more interested"
+      },
+      {
+        "pos": 90,
+        "tok": " faced",
+        "prob": 0.1484375,
+        "is_greedy": false,
+        "text": "faced a series of weak, ineffective, or corrupt emperors. Many were assassinated or deposed, leading to political instability.\n- **Division of Power**: The empire was often divided between the Eastern and Western halves, leading to a lack of centralized authority.\n- **B"
+      },
+      {
+        "pos": 90,
+        "tok": " was",
+        "prob": 0.130859375,
+        "is_greedy": false,
+        "text": "was plagued by a lack of strong, consistent leadership. Emperors often came to power through assassination, coup, or military support, leading to instability.\n- **Corruption and Bureaucracy**: The government became increasingly corrupt, with officials more interested in personal gain than"
+      },
+      {
+        "pos": 150,
+        "tok": "Division",
+        "prob": 0.484375,
+        "is_greedy": true,
+        "text": "Division of Power**: The empire was divided into the Western and Eastern halves, which led to a lack of unity and coordination.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy,"
+      },
+      {
+        "pos": 150,
+        "tok": "Weak",
+        "prob": 0.044921875,
+        "is_greedy": false,
+        "text": "Weak Central Authority**: The empire became increasingly decentralized, with local governors and military commanders gaining more power, weakening the central government.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy,"
+      },
+      {
+        "pos": 150,
+        "tok": "Div",
+        "prob": 0.044921875,
+        "is_greedy": false,
+        "text": "Divided Government**: The empire was often split into two parts (the Western and Eastern Empires), leading to administrative inefficiencies and a lack of unity.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to"
+      },
+      {
+        "pos": 150,
+        "tok": "Civil",
+        "prob": 0.039794921875,
+        "is_greedy": false,
+        "text": "Civil Wars**: Frequent civil wars weakened the empire and drained resources.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens, leading to economic hardship and rebellion.\n- **Inflation and Currency Devaluation**: The"
+      },
+      {
+        "pos": 168,
+        "tok": " a",
+        "prob": 0.232421875,
+        "is_greedy": true,
+        "text": "a lack of unity and coordination.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value of the"
+      },
+      {
+        "pos": 168,
+        "tok": " administrative",
+        "prob": 0.232421875,
+        "is_greedy": false,
+        "text": "administrative inefficiencies and a lack of unity.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value"
+      },
+      {
+        "pos": 168,
+        "tok": " political",
+        "prob": 0.205078125,
+        "is_greedy": false,
+        "text": "political fragmentation and a lack of unity.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value of"
+      },
+      {
+        "pos": 168,
+        "tok": " competition",
+        "prob": 0.140625,
+        "is_greedy": false,
+        "text": "competition and weakened central authority.\n\n### 2. **Economic Decline**\n- **Heavy Taxation**: The empire imposed heavy taxes on its citizens to fund the military and bureaucracy, leading to economic hardship.\n- **Inflation and Currency Devaluation**: The value of the Roman"
+      }
+    ],
+    "resamples": [
+      "The fall of the Western Roman Empire in 476 AD was the result of a complex interplay of political, economic, social, military, and external factors. While no single cause can be blamed, several key factors contributed to its decline and eventual collapse:\n\n---\n\n###",
+      "The fall of the Roman Empire, particularly the Western Roman Empire, was the result of a complex interplay of political, economic, social, military, and external factors. The Western Roman Empire fell in 476 AD, while the Eastern Roman Empire (Byzantine",
+      "The fall of the Roman Empire, specifically the Western Roman Empire, was the result of a complex interplay of political, economic, social, military, and external factors. Here's a detailed breakdown of the key reasons:\n\n---\n\n### **1. Political Instability and Corruption**",
+      "The fall of the Western Roman Empire in 476 AD was the result of a complex interplay of political, economic, military, social, and external factors. While no single cause can be blamed, historians and scholars have identified several key factors that contributed to its decline",
+      "The fall of the Roman Empire is a complex event that involved a combination of internal and external factors. The Western Roman Empire fell in 476 AD, while the Eastern Roman Empire (Byzantine Empire) continued for over another millennium. Here's a breakdown of the",
+      "The fall of the Roman Empire was a complex process that involved a combination of political, economic, social, military, and external factors. The Western Roman Empire fell in 476 AD, while the Eastern Roman Empire (Byzantine Empire) continued until 14",
+      "The fall of the Roman Empire was not a single event but a long, complex process that unfolded over several centuries. The Western Roman Empire fell in 476 AD, while the Eastern Roman Empire (Byzantine Empire) lasted until 1453 AD.",
+      "The fall of the Western Roman Empire in 476 CE is a complex event with multiple contributing factors. Here's a structured overview of the key reasons:\n\n### 1. **Political Instability**\n   - **Frequent Leadership Changes**: The Empire struggled with short reign",
+      "The fall of the Western Roman Empire in 476 CE was the result of a complex interplay of political, economic, social, and military factors. Here's a structured overview of the key reasons:\n\n---\n\n### **1. Political Instability and Weak Leadership**\n-",
+      "The fall of the Western Roman Empire in 476 AD was the result of a complex interplay of political, economic, military, social, and external factors. Here's a structured overview of the key reasons:\n\n---\n\n### **1. Political Instability and Corruption**",
+      "The fall of the Roman Empire was not a single event but a long process that involved many factors over centuries. The Western Roman Empire fell in 476 AD, while the Eastern Roman Empire (Byzantine Empire) continued until 1453 AD. Here",
+      "The fall of the Roman Empire was not a single event but a gradual process that unfolded over several centuries, involving a complex interplay of political, economic, social, military, and external factors. The Western Roman Empire, which is most often referred to when discussing the \"fall"
+    ]
+  },
+  {
+    "prompt": "Why do LLMs hallucinate?",
+    "greedy_full": "Large Language Models (LLMs) can \"hallucinate\" when they generate responses that are factually incorrect, make up information, or provide answers that are not supported by the training data. This phenomenon is a significant challenge in the field of AI and natural language processing. Here's a detailed explanation of why LLMs hallucinate:\n\n---\n\n### 1. **Training Data Limitations**\nLLMs are trained on vast amounts of text data from the internet, books, articles, and other sources. However, this data is not always accurate or reliable. Some of the information in the training data may be:\n- **Outdated** (e.g., historical events, scientific facts that have been corrected)\n- **Incorrect** (e.g., false statements, misinformation)\n- **Biased** (e.g., cultural, political, or gender biases)\n- **Inconsistent** (e.g., conflicting information from different sources)\n\nWhen the model encounters a question that requires knowledge beyond its training data",
+    "spikes_entropy": [
+      {
+        "pos": 23,
+        "H": 3.27,
+        "spread": 0.635
+      },
+      {
+        "pos": 157,
+        "H": 2.83,
+        "spread": 0.716
+      },
+      {
+        "pos": 195,
+        "H": 2.83,
+        "spread": 0.526
+      }
+    ],
+    "spikes_spread": [
+      {
+        "pos": 23,
+        "H": 3.27,
+        "spread": 0.635
+      },
+      {
+        "pos": 157,
+        "H": 2.83,
+        "spread": 0.716
+      },
+      {
+        "pos": 174,
+        "H": 2.5,
+        "spread": 0.659
+      }
+    ],
+    "cand_pos_scores": [
+      {
+        "pos": 157,
+        "H": 2.83,
+        "spread": 0.716
+      },
+      {
+        "pos": 174,
+        "H": 2.5,
+        "spread": 0.659
+      },
+      {
+        "pos": 23,
+        "H": 3.27,
+        "spread": 0.635
+      },
+      {
+        "pos": 115,
+        "H": 2.22,
+        "spread": 0.594
+      },
+      {
+        "pos": 195,
+        "H": 2.83,
+        "spread": 0.526
+      },
+      {
+        "pos": 164,
+        "H": 2.72,
+        "spread": 0.43
+      },
+      {
+        "pos": 153,
+        "H": 2.66,
+        "spread": 0.277
+      },
+      {
+        "pos": 144,
+        "H": 2.23,
+        "spread": 0.251
+      }
+    ],
+    "branches_entropy": [
+      {
+        "pos": 23,
+        "tok": " make",
+        "prob": 0.251953125,
+        "is_greedy": true,
+        "text": "make up information, or provide answers that are not supported by the training data. This phenomenon is a significant challenge in the field of AI and natural language processing. Here's a detailed explanation of why LLMs hallucinate:\n\n---\n\n### 1. **Training Data Limitations**"
+      },
+      {
+        "pos": 23,
+        "tok": " inconsistent",
+        "prob": 0.1953125,
+        "is_greedy": false,
+        "text": "inconsistent, or fabricated. This phenomenon occurs for several reasons, and it's a significant challenge in the development and deployment of LLMs. Here's a breakdown of why LMs might hallucinate:\n\n---\n\n### 1. **Training Data Limitations**\n- **Data Quality**:"
+      },
+      {
+        "pos": 23,
+        "tok": " misleading",
+        "prob": 0.15234375,
+        "is_greedy": false,
+        "text": "misleading, or entirely made up, even though they are trained on vast amounts of text data. This phenomenon is a significant challenge in the field of AI and has sparked a lot of research and discussion. Here's a breakdown of why LLMs hallucinate:\n\n---\n\n### 1"
+      },
+      {
+        "pos": 23,
+        "tok": " made",
+        "prob": 0.11865234375,
+        "is_greedy": false,
+        "text": "made up, or include information that is not supported by the training data. This phenomenon is a significant challenge in the field of AI and natural language processing. Here's a detailed explanation of why LLMs hallucinate:\n\n---\n\n### 1. **Training Data Limitations**\nLL"
+      },
+      {
+        "pos": 157,
+        "tok": "Bi",
+        "prob": 0.49609375,
+        "is_greedy": true,
+        "text": "Biased** (e.g., cultural, political, or gender biases)\n- **Inconsistent** (e.g., conflicting information from different sources)\n\nWhen the model encounters a question that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that"
+      },
+      {
+        "pos": 157,
+        "tok": "In",
+        "prob": 0.1826171875,
+        "is_greedy": false,
+        "text": "Inconsistent** (e.g., conflicting information from different sources)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Ambigu"
+      },
+      {
+        "pos": 157,
+        "tok": "Un",
+        "prob": 0.09765625,
+        "is_greedy": false,
+        "text": "Unverified** (e.g., user-generated content, forum discussions)\n\nWhen the model encounters a question that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Amb"
+      },
+      {
+        "pos": 157,
+        "tok": "Incomplete",
+        "prob": 0.059326171875,
+        "is_greedy": false,
+        "text": "Incomplete** (e.g., missing context or details)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Ambiguity and"
+      },
+      {
+        "pos": 195,
+        "tok": " knowledge",
+        "prob": 0.3125,
+        "is_greedy": true,
+        "text": "knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Ambiguity and Ambivalence in Language**\nNatural language is inherently ambiguous. Words and phrases can have multiple meanings,"
+      },
+      {
+        "pos": 195,
+        "tok": " factual",
+        "prob": 0.1669921875,
+        "is_greedy": false,
+        "text": "factual knowledge, it may generate an answer based on the most recent or most common information in its training data, even if that information is wrong.\n\n---\n\n### 2. **Lack of Explicit Fact-Checking**\nLLMs do not have access to real-time information or external databases"
+      },
+      {
+        "pos": 195,
+        "tok": " precise",
+        "prob": 0.1474609375,
+        "is_greedy": false,
+        "text": "precise or up-to-date information, it may generate a response based on the best match in its training data, even if that match is incorrect.\n\n---\n\n### 2. **Lack of External Knowledge**\nLLMs do not have access to real-time information or external databases. They"
+      },
+      {
+        "pos": 195,
+        "tok": " accurate",
+        "prob": 0.1474609375,
+        "is_greedy": false,
+        "text": "accurate information, it may generate a response based on the most recent or most common information in its training data, even if that information is wrong.\n\n---\n\n### 2. **Lack of Explicit Knowledge**\nLLMs do not have access to real-time information or external databases. They"
+      }
+    ],
+    "branches_spread": [
+      {
+        "pos": 23,
+        "tok": " make",
+        "prob": 0.251953125,
+        "is_greedy": true,
+        "text": "make up information, or provide answers that are not supported by the training data. This phenomenon is a significant challenge in the field of AI and natural language processing. Here's a detailed explanation of why LLMs hallucinate:\n\n---\n\n### 1. **Training Data Limitations**"
+      },
+      {
+        "pos": 23,
+        "tok": " inconsistent",
+        "prob": 0.1953125,
+        "is_greedy": false,
+        "text": "inconsistent, or fabricated. This phenomenon occurs for several reasons, and it's a significant challenge in the development and deployment of LLMs. Here's a breakdown of why LMs might hallucinate:\n\n---\n\n### 1. **Training Data Limitations**\n- **Data Quality**:"
+      },
+      {
+        "pos": 23,
+        "tok": " misleading",
+        "prob": 0.15234375,
+        "is_greedy": false,
+        "text": "misleading, or entirely made up, even though they are trained on vast amounts of text data. This phenomenon is a significant challenge in the deployment of LLMs and has been the subject of extensive research. Here's a breakdown of why LLMs hallucinate:\n\n---\n\n###"
+      },
+      {
+        "pos": 23,
+        "tok": " made",
+        "prob": 0.11865234375,
+        "is_greedy": false,
+        "text": "made up, or include information that is not supported by the training data. This phenomenon is a significant challenge in the field of AI and natural language processing. Here's a detailed explanation of why LLMs hallucinate:\n\n---\n\n### 1. **Training Data Limitations**\nLL"
+      },
+      {
+        "pos": 157,
+        "tok": "Bi",
+        "prob": 0.49609375,
+        "is_greedy": true,
+        "text": "Biased** (e.g., cultural, political, or gender biases)\n- **Inconsistent** (e.g., conflicting information from different sources)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that"
+      },
+      {
+        "pos": 157,
+        "tok": "In",
+        "prob": 0.1826171875,
+        "is_greedy": false,
+        "text": "Inconsistent** (e.g., conflicting information from different sources)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Ambigu"
+      },
+      {
+        "pos": 157,
+        "tok": "Un",
+        "prob": 0.09765625,
+        "is_greedy": false,
+        "text": "Unverified** (e.g., user-generated content, forum discussions)\n\nWhen the model encounters a question that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Amb"
+      },
+      {
+        "pos": 157,
+        "tok": "Incomplete",
+        "prob": 0.059326171875,
+        "is_greedy": false,
+        "text": "Incomplete** (e.g., missing context or details)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Ambiguity and"
+      },
+      {
+        "pos": 174,
+        "tok": "In",
+        "prob": 0.62890625,
+        "is_greedy": true,
+        "text": "Inconsistent** (e.g., conflicting information from different sources)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Ambigu"
+      },
+      {
+        "pos": 174,
+        "tok": "Incomplete",
+        "prob": 0.09619140625,
+        "is_greedy": false,
+        "text": "Incomplete** (e.g., missing context or details)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Ambiguity and"
+      },
+      {
+        "pos": 174,
+        "tok": "Re",
+        "prob": 0.06640625,
+        "is_greedy": false,
+        "text": "Repetitive** (e.g., common phrases, news headlines)\n\nWhen the model encounters a query that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2. **Amb"
+      },
+      {
+        "pos": 174,
+        "tok": "Un",
+        "prob": 0.0400390625,
+        "is_greedy": false,
+        "text": "Unverified** (e.g., claims made by individuals or organizations without evidence)\n\nWhen the model encounters a question that requires knowledge beyond its training data, it may \"hallucinate\" by making up information that sounds plausible but is not factually correct.\n\n---\n\n### 2."
+      }
+    ],
+    "resamples": [
+      "Large Language Models (LLMs) can produce \"hallucinations,\" which are instances where the model generates information that is not supported by the training data or is factually incorrect. This can include making up facts, inventing details, or providing misleading information. The reasons why",
+      "Large Language Models (LLMs) can \"hallucinate\" when they generate text that is not based on factual or logical information they have been trained on. This can happen for several reasons, and it's a complex phenomenon that researchers are still actively studying. Here are the",
+      "Large Language Models (LLMs) like GPT-3, GPT-4, or other similar models can sometimes produce **hallucinations**\u2014responses that seem factual but are not based on actual data or are incorrect. This phenomenon occurs due to a combination of factors",
+      "Large Language Models (LLMs) can \"hallucinate\" when they generate text that includes information that is not supported by the training data or is factually incorrect. This can happen for several reasons:\n\n### 1. **Training Data Limitations**\n- **Incomplete Data",
+      "Large Language Models (LLMs) like GPT-3, GPT-4, and others can \"hallucinate,\" meaning they generate information that is not factually accurate, even when asked direct factual questions. This phenomenon is a well-documented challenge in AI research",
+      "Large Language Models (LLMs) can \"hallucinate\" when they generate responses that include information that is not based on the training data they were exposed to. This can occur for several reasons:\n\n### 1. **Training Data Limitations**\n- **Inadequate",
+      "Large Language Models (LLMs) like GPT-3, GPT-4, and others can \"hallucinate\" when they generate responses that are not supported by the training data. This means they might produce information that is fabricated, incorrect, or not based on",
+      "Large Language Models (LLMs) can sometimes \"hallucinate,\" meaning they generate information that is not based on the data they were trained on. This can lead to false or misleading outputs. There are several reasons why LLMs may hallucinate:\n\n---\n\n### 1",
+      "Large Language Models (LLMs) can hallucinate because they are trained on vast amounts of text data, but they lack a true understanding of the world and cannot verify the accuracy of their responses. Here's a breakdown of why this happens:\n\n### 1. **Training on",
+      "Large Language Models (LLMs) can \"hallucinate\" when they generate responses that include information that is not actually present in their training data. This phenomenon is a common issue in natural language processing (NLP) and can occur for several reasons. Here's a breakdown",
+      "Large Language Models (LLMs) can hallucinate, meaning they generate content that is not factually accurate or is made up, even though they are trained on vast amounts of text data. This phenomenon is a significant challenge in the development and use of LLMs. Here",
+      "Large Language Models (LLMs), such as GPT-3, GPT-4, and others, can sometimes \"hallucinate,\" which means they generate information that is not based on factual knowledge, even though they are trained on vast amounts of text data. This"
+    ]
+  }
+]
