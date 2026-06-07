@@ -135,9 +135,34 @@ fails.** Entropy-targeted branching is the wrong tool because suppression is a
 branch (or re-prompt) at the **outline-setting tokens**, or compare against
 resampling-with-a-plausibility-gate rather than greedy.
 
+The [`COMMITMENT_CURVE.md`](./COMMITMENT_CURVE.md) follow-up then sharpened *and
+partly corrected* this: the suppression is **format-induced, not positional** —
+the outline's *section headers* gate the idea set, and lists still allow late
+insertion at item boundaries (no commitment cliff).
+
+## Closing note — why the cliff was never going to appear
+
+The deeper reason the commitment curve found no cliff is a **limit on the research
+question at this scale**. The whole premise needs an idea that is
+*present-but-suppressed* — one the model knows but greedy won't say. On 0.6B/4B
+that band is nearly empty: the ideas a keyword detector can reliably catch are
+either **mandatory** (e.g. invasions for "why did Rome fall" — `P≈1.0` from the
+empty prefix) or **freely insertable** (any bullet in a list) or simply **absent**
+(co-founder conflict at 0.6B). The "knows-it-but-won't-say-it" regime that makes
+the question interesting **barely exists in models this small**. So the honest
+close is a true null (no cliff) plus one reframe worth keeping (format gates the
+idea set) — and a clear signal that testing this properly needs a **larger model**,
+where the suppressed-but-present regime is actually populated. A concrete next
+step that stays small: the **outline-header intervention** — force an extra
+section header early and test whether the missing idea then gets developed,
+directly probing the "headers gate the idea set" claim.
+
 ## Caveats
 - Tiny models (0.6B/4B), CPU-only, 2–4 prompts per condition — directional, not
   statistically powered.
 - The "judge" (idea novelty/plausibility labeling) was done by a frontier LLM
   reading the dumps, with no formal rubric or inter-rater check.
 - 4B run limited to 2 prompts by CPU speed (transformers bf16 ≈ 2.4 tok/s).
+- The commitment-curve thread uses keyword detection (misses paraphrase) and
+  `M`=10–16 samples/point (SE ≈ 0.12); always pair `recovery(p)` with a
+  long-window control to rule out the sliding-window artifact.
