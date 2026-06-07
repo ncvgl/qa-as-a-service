@@ -104,6 +104,14 @@ entropy-targeting and spread-targeting never look. This inverts the original
 intuition: the fork worth branching is the confident **plan** commitment, not the
 high-entropy mid-answer fork.
 
+> **Follow-up — [`COMMITMENT_CURVE.md`](./COMMITMENT_CURVE.md):** sweeping the
+> branch position to map *where* the plan commits shows the suppression is
+> **format-induced, not positional**. An outline/list answer commits its *section
+> headers* early but still allows **late idea-insertion at item boundaries** (no
+> cliff); in **prose** an obligatory idea (e.g. invasions at 4B) appears with
+> `P≈1.0` from the empty prefix, just deferred. So "the plan is set early" is
+> really "the *list of headers* is set early, and that gates the idea set."
+
 **4. Resampling is the baseline to beat — and branching doesn't.**
 Plain temperature resampling re-rolls the whole plan, so it visits different
 sections/orderings and recovers the suppressed ideas — at the cost of occasional

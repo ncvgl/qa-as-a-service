@@ -1,0 +1,247 @@
+{
+  "prompt": "Why do startups fail?",
+  "model": "Qwen/Qwen3-0.6B",
+  "M": 12,
+  "N": 45,
+  "greedy": "Startups fail for a variety of reasons, and the causes can be complex and multifaceted. Here are some common factors that contribute to startup failure:\n\n1. **Inadequate Planning and Execution**:\n   - Poor business planning and strategy.\n   - Poor resource allocation.\n   - Inability to adapt to market changes.\n\n2. **Financial Issues**:\n   - Insufficient capital investment.\n   - High costs of operations.\n   - Poor financial management.\n\n3. **Market Competition**:\n   - Intense competition in the market.\n   - Lack of differentiation from competitors.\n\n4. **Management and Leadership**:\n   - Weak leadership and poor management.\n   - Ineffective communication and decision-making.\n\n5. **Regulatory and Legal Risks**:\n   - Non-compliance with regulations.\n   - Legal challenges.\n\n6. **Technology and Innovation**:\n   - Inability to innovate or adapt to new technologies.\n\n7. **Customer Retention**:\n   - Poor customer acquisition and",
+  "rows": [
+    {
+      "pos": 0,
+      "resample_recovery": 0.16666666666666666,
+      "branch_recovery": 0.0,
+      "ctx": "",
+      "example_hit": "Startups fail for a variety of reasons, and the causes can be complex, often tied to both external and internal factors."
+    },
+    {
+      "pos": 6,
+      "resample_recovery": 0.0,
+      "branch_recovery": 0.25,
+      "ctx": "Startups fail for a variety",
+      "example_hit": ""
+    },
+    {
+      "pos": 12,
+      "resample_recovery": 0.16666666666666666,
+      "branch_recovery": 0.0,
+      "ctx": " of reasons, and the causes",
+      "example_hit": " can be complex and multifaceted. Here's a structured breakdown of some common factors:\n\n### 1. **Lack of Market Opportu"
+    },
+    {
+      "pos": 18,
+      "resample_recovery": 0.3333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": " can be complex and multifac",
+      "example_hit": "eted. Here are some key factors that contribute to the failure of startups:\n\n1. **Inception and Planning Errors**: \n   -"
+    },
+    {
+      "pos": 24,
+      "resample_recovery": 0.25,
+      "branch_recovery": 0.25,
+      "ctx": "eted. Here are some common",
+      "example_hit": " factors that contribute to startups failing:\n\n1. **Poor Vision and Strategy**:\n   - Not aligning business goals with ma"
+    },
+    {
+      "pos": 30,
+      "resample_recovery": 0.25,
+      "branch_recovery": 0.25,
+      "ctx": " factors that contribute to startup failure",
+      "example_hit": ":\n\n1. **Market Demand**: If the target market doesn't have enough demand for the startup's offerings, it will struggle t"
+    },
+    {
+      "pos": 36,
+      "resample_recovery": 0.16666666666666666,
+      "branch_recovery": 0.0,
+      "ctx": ":\n\n1. **Inade",
+      "example_hit": "quate Vision and Planning**: Without a clear vision, entrepreneurs may struggle to align their business with market need"
+    },
+    {
+      "pos": 42,
+      "resample_recovery": 0.08333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": "quate Planning and Execution**:\n",
+      "example_hit": "   - Poor strategic planning can lead to misalignment with market needs.\n   - Without clear objectives, the company may "
+    },
+    {
+      "pos": 48,
+      "resample_recovery": 0.4166666666666667,
+      "branch_recovery": 0.0,
+      "ctx": "   - Poor business planning and",
+      "example_hit": " strategic direction.\n   - Misaligned goals with market needs.\n   - Poor resource allocation.\n\n2. **Financial Mismanagem"
+    },
+    {
+      "pos": 54,
+      "resample_recovery": 0.3333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": " strategy.\n   - Poor resource",
+      "example_hit": " allocation (money, time, talent).\n   - Mismanagement and poor operational efficiency.\n\n2. **Market Reactions**:\n   - La"
+    },
+    {
+      "pos": 60,
+      "resample_recovery": 0.16666666666666666,
+      "branch_recovery": 0.0,
+      "ctx": " allocation.\n   - Inability",
+      "example_hit": " to pivot quickly when faced with challenges.\n\n2. **Market Uncertainty**:\n   - Uncertainties about market demand or comp"
+    },
+    {
+      "pos": 66,
+      "resample_recovery": 0.0,
+      "branch_recovery": 0.25,
+      "ctx": " to adapt to market changes.\n\n",
+      "example_hit": ""
+    },
+    {
+      "pos": 72,
+      "resample_recovery": 0.4166666666666667,
+      "branch_recovery": 0.0,
+      "ctx": "2. **Financial Issues**",
+      "example_hit": ":\n   - Insufficient funding.\n   - High costs of starting or growing.\n   - Lack of cash flow management.\n\n3. **Lack of Ma"
+    },
+    {
+      "pos": 78,
+      "resample_recovery": 0.25,
+      "branch_recovery": 0.0,
+      "ctx": ":\n   - Insufficient capital",
+      "example_hit": " or lack of funds.\n   - High initial costs.\n   - Poor financial management.\n\n3. **Market Competition**:\n   - Facing inte"
+    },
+    {
+      "pos": 84,
+      "resample_recovery": 0.3333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": " investment.\n   - High costs",
+      "example_hit": " and poor profit margins.\n\n3. **Market and Customer Challenges**:\n   - Lack of market demand.\n   - Customers not being r"
+    },
+    {
+      "pos": 90,
+      "resample_recovery": 0.25,
+      "branch_recovery": 0.0,
+      "ctx": " of operations.\n   - Poor",
+      "example_hit": " financial management and liquidity.\n\n3. **Market Challenges**:\n   - Missed market opportunities.\n   - Lack of demand fo"
+    },
+    {
+      "pos": 96,
+      "resample_recovery": 0.75,
+      "branch_recovery": 0.5,
+      "ctx": " financial management.\n\n3. **",
+      "example_hit": "Market Entry Failures**:\n   - Competition from existing companies.\n   - Low market demand for the product or service.\n\n4"
+    },
+    {
+      "pos": 102,
+      "resample_recovery": 0.25,
+      "branch_recovery": 0.0,
+      "ctx": "Market Competition**:\n   -",
+      "example_hit": " Intense competition from existing companies.\n   - Lack of differentiation from competitors.\n\n4. **Lack of Vision and Ma"
+    },
+    {
+      "pos": 108,
+      "resample_recovery": 0.16666666666666666,
+      "branch_recovery": 0.0,
+      "ctx": " Intense competition in the market",
+      "example_hit": ".\n   - Loss of customers due to price competition.\n\n4. **Unaddressed Market Needs**:\n   - Lack of a clear value proposit"
+    },
+    {
+      "pos": 114,
+      "resample_recovery": 0.0,
+      "branch_recovery": 0.0,
+      "ctx": ".\n   - Lack of differentiation",
+      "example_hit": ""
+    },
+    {
+      "pos": 120,
+      "resample_recovery": 0.0,
+      "branch_recovery": 0.0,
+      "ctx": " from competitors.\n\n4. **",
+      "example_hit": ""
+    },
+    {
+      "pos": 126,
+      "resample_recovery": 0.0,
+      "branch_recovery": 0.0,
+      "ctx": "Management and Leadership**:\n  ",
+      "example_hit": ""
+    },
+    {
+      "pos": 132,
+      "resample_recovery": 0.08333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": " - Weak leadership and poor management",
+      "example_hit": ".\n   - Inability to motivate and retain employees.\n\n5. **Innovation and Market Demand**:\n   - Not being able to meet or "
+    },
+    {
+      "pos": 138,
+      "resample_recovery": 0.08333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": ".\n   - Ineffective communication",
+      "example_hit": " and team dynamics.\n\n5. **Regulatory and Legal Issues**:\n   - Non-compliance with regulations.\n   - Legal challenges or "
+    },
+    {
+      "pos": 144,
+      "resample_recovery": 0.08333333333333333,
+      "branch_recovery": 0.5,
+      "ctx": " and decision-making.\n\n5.",
+      "example_hit": " **Regulatory and Legal Issues**:\n   - Non-compliance with laws and regulations.\n   - Legal challenges.\n\n6. **Customer N"
+    },
+    {
+      "pos": 150,
+      "resample_recovery": 0.08333333333333333,
+      "branch_recovery": 0.25,
+      "ctx": " **Regulatory and Legal Ris",
+      "example_hit": "ks**:\n   - Non-compliance with regulations.\n   - Legal disputes.\n\n6. **Customer Needs and Market Demand**:\n   - Failure "
+    },
+    {
+      "pos": 156,
+      "resample_recovery": 0.08333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": "ks**:\n   - Non",
+      "example_hit": "-compliance with laws and regulations.\n   - Legal challenges.\n\n6. **Technology and Innovation**:\n   - Lack of innovation"
+    },
+    {
+      "pos": 162,
+      "resample_recovery": 0.08333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": "-compliance with regulations.\n  ",
+      "example_hit": " - Legal challenges or disputes.\n\n6. **Technology and Innovation**:\n   - Failure to innovate or keep up with technologic"
+    },
+    {
+      "pos": 168,
+      "resample_recovery": 0.25,
+      "branch_recovery": 0.5,
+      "ctx": " - Legal challenges.\n\n6.",
+      "example_hit": " **Cultural and Organizational Factors**:\n   - Lack of innovation and creativity.\n   - Inappropriate corporate culture.\n"
+    },
+    {
+      "pos": 174,
+      "resample_recovery": 0.4166666666666667,
+      "branch_recovery": 0.0,
+      "ctx": " **Technology and Innovation**:\n",
+      "example_hit": "   - Inadequate technology or innovation.\n   - Poor implementation of technologies.\n\n7. **Customer Feedback and Market V"
+    },
+    {
+      "pos": 180,
+      "resample_recovery": 0.3333333333333333,
+      "branch_recovery": 0.0,
+      "ctx": "   - Inability to innovate",
+      "example_hit": " or adapt to technology.\n   - Poor integration of technology.\n\n7. **Customer Satisfaction**:\n   - Poor customer service "
+    },
+    {
+      "pos": 186,
+      "resample_recovery": 0.25,
+      "branch_recovery": 0.5,
+      "ctx": " or adapt to new technologies.\n\n",
+      "example_hit": "7. **Operational Failures**:\n   - Systemic or operational problems that prevent the business from functioning correctly."
+    },
+    {
+      "pos": 192,
+      "resample_recovery": 0.0,
+      "branch_recovery": 0.0,
+      "ctx": "7. **Customer Retention",
+      "example_hit": ""
+    },
+    {
+      "pos": 198,
+      "resample_recovery": 0.16666666666666666,
+      "branch_recovery": 0.0,
+      "ctx": "**:\n   - Poor customer",
+      "example_hit": " acquisition or retention strategies.\n\n8. **Funding and Venture Capital**:\n   - Lack of initial funding and support from"
+    }
+  ]
+}

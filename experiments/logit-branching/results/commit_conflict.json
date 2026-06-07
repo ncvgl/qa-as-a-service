@@ -1,0 +1,256 @@
+{
+  "list": {
+    "prompt": "Why do startups fail? Answer as a numbered list of factors.",
+    "greedy": "1. **Inadequate Funding** \u2013 Lack of sufficient capital can lead to financial strain and prevent startups from scaling.  \n2. **Poor Market Research** \u2013 Without understanding the target audience and market demand, startups may fail to capture a viable market.  \n3. **Ineffective Management** \u2013 Poor leadership, poor resource allocation, or lack of strategic planning can lead to failure.  \n4. **High Costs** \u2013 High operational costs can make it difficult to sustain and scale the business.  \n5. **Unrealistic Expectations** \u2013 Setting unrealistic goals or expectations can lead to burnout and failure.  \n6. **Lack of Innovation** \u2013 Without creative solutions, startups may struggle to stay competitive.  \n7. **Regulatory and Legal Issues** \u2013 Non-compliance with laws and regulations can result in legal issues.  \n8. **Poor Customer Service** \u2013 Poor customer support can lead to dissatisfaction and loss of customers.  \n9. **Overreliance on Technology**",
+    "target_in_greedy": false,
+    "rows": [
+      {
+        "pos": 0,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 6,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 12,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 18,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 24,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 30,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 36,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 42,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 48,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 54,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 60,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 66,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 72,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 78,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 84,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 90,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 96,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 102,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 108,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 114,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 120,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 126,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 132,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 138,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 144,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 150,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 156,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 162,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 168,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 174,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 180,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 186,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 192,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 198,
+        "rec": 0.0,
+        "already": false
+      }
+    ]
+  },
+  "narrative": {
+    "prompt": "Why do startups fail? Answer in a single flowing paragraph of prose. Do not use any lists, numbers, headings, or bullet points.",
+    "greedy": "Startups often fail due to a combination of poor planning, lack of market demand, and insufficient resources. Without a clear vision and a solid foundation, they may struggle to scale and adapt to changing market conditions. Additionally, failing to invest adequately in talent, technology, and operations can lead to financial instability and operational challenges. Ultimately, the ability to pivot and learn from failures is crucial for the success of any startup.",
+    "target_in_greedy": false,
+    "rows": [
+      {
+        "pos": 0,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 6,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 12,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 18,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 24,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 30,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 36,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 42,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 48,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 54,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 60,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 66,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 72,
+        "rec": 0.0,
+        "already": false
+      },
+      {
+        "pos": 78,
+        "rec": 0.0,
+        "already": false
+      }
+    ]
+  }
+}

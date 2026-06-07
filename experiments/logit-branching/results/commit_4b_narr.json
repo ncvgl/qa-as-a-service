@@ -1,0 +1,191 @@
+{
+  "prompt": "Why did Rome fall? Answer in a single flowing paragraph of prose. Do not use any lists, numbers, headings, or bullet points.",
+  "model": "Qwen/Qwen3-4B",
+  "greedy": "The fall of Rome was the result of a complex interplay of internal decay, external pressures, and societal shifts that eroded the foundations of the Roman Empire over centuries. As the empire expanded, it became increasingly difficult to govern such a vast and diverse territory, leading to administrative inefficiencies, economic strain, and a growing reliance on mercenaries and local rulers rather than a centralized authority. Political instability plagued the later years of the empire, with frequent changes in leadership, corruption, and the inability to effectively respond to internal uprisings or external threats. The empire's reliance on slave labor and the decline of agricultural productivity further weakened its economic base, while the overextension of military resources made it vulnerable to invasions by Germanic tribes and other neighboring powers. Additionally, the loss of the western half of the empire to barbarian incursions in the 5th century marked the end of the Western Roman Empire, though the Eastern Roman Empire, or Byzantine Empire, would continue for another millennium, adapting to",
+  "target_in_greedy": true,
+  "p0_recovery": 0.0,
+  "rows": [
+    {
+      "pos": 0,
+      "rec": 0.0,
+      "already": false,
+      "ctx": "",
+      "ex": ""
+    },
+    {
+      "pos": 4,
+      "rec": 0.0,
+      "already": false,
+      "ctx": "The fall of Rome",
+      "ex": ""
+    },
+    {
+      "pos": 8,
+      "rec": 0.0,
+      "already": false,
+      "ctx": " of Rome was the result of",
+      "ex": ""
+    },
+    {
+      "pos": 12,
+      "rec": 0.1,
+      "already": false,
+      "ctx": " result of a complex interplay",
+      "ex": " of internal decay, external pressures, and structural failures that eroded the once-might"
+    },
+    {
+      "pos": 16,
+      "rec": 0.1,
+      "already": false,
+      "ctx": " interplay of internal decay,",
+      "ex": " external pressures, and systemic failures that eroded the once-mighty empire over centuri"
+    },
+    {
+      "pos": 20,
+      "rec": 0.0,
+      "already": false,
+      "ctx": " decay, external pressures, and",
+      "ex": ""
+    },
+    {
+      "pos": 24,
+      "rec": 0.2,
+      "already": false,
+      "ctx": ", and societal shifts that er",
+      "ex": "oded the empire's stability over centuries. As the western Roman Empire weakened, it becam"
+    },
+    {
+      "pos": 28,
+      "rec": 0.2,
+      "already": false,
+      "ctx": " that eroded the foundations of",
+      "ex": " the Roman Empire over centuries. As the empire expanded, it became increasingly difficult"
+    },
+    {
+      "pos": 32,
+      "rec": 0.0,
+      "already": false,
+      "ctx": " foundations of the Roman Empire over",
+      "ex": ""
+    },
+    {
+      "pos": 36,
+      "rec": 0.0,
+      "already": false,
+      "ctx": " Empire over centuries. As the",
+      "ex": ""
+    },
+    {
+      "pos": 40,
+      "rec": 0.2,
+      "already": false,
+      "ctx": " As the empire expanded, it",
+      "ex": " became increasingly difficult to govern such a vast and diverse territory, leading to adm"
+    },
+    {
+      "pos": 50,
+      "rec": 0.2,
+      "already": false,
+      "ctx": " govern such a vast and diverse",
+      "ex": " territory, leading to administrative inefficiencies, economic strain, and growing regiona"
+    },
+    {
+      "pos": 60,
+      "rec": 0.6,
+      "already": false,
+      "ctx": " administrative inefficiencies, economic strain",
+      "ex": ", and growing resentment among the conquered peoples. Internal corruption, political insta"
+    },
+    {
+      "pos": 70,
+      "rec": 0.8,
+      "already": false,
+      "ctx": " reliance on mercenaries and local rulers",
+      "ex": " rather than a centralized authority. Political instability plagued the later years of the"
+    },
+    {
+      "pos": 80,
+      "rec": 1.0,
+      "already": false,
+      "ctx": " authority. Political instability plagued the",
+      "ex": " empire, with frequent changes in leadership, corruption, and the weakening of the militar"
+    },
+    {
+      "pos": 90,
+      "rec": 1.0,
+      "already": false,
+      "ctx": " empire, with frequent changes in",
+      "ex": " leadership, corruption, and the breakdown of effective governance. Military conflicts wit"
+    },
+    {
+      "pos": 100,
+      "rec": 1.0,
+      "already": false,
+      "ctx": " and the inability to effectively respond",
+      "ex": " to internal uprisings or external threats. The empire\u2019s reliance on slave labor and its o"
+    },
+    {
+      "pos": 110,
+      "rec": 1.0,
+      "already": true,
+      "ctx": "ings or external threats. The",
+      "ex": " military, once a formidable force, became stretched thin and poorly maintained, unable to"
+    },
+    {
+      "pos": 120,
+      "rec": 1.0,
+      "already": true,
+      "ctx": " slave labor and the decline of",
+      "ex": " its agricultural base weakened its economy, making it vulnerable to invasions by Germanic"
+    },
+    {
+      "pos": 130,
+      "rec": 1.0,
+      "already": true,
+      "ctx": " its economic base, while the",
+      "ex": " constant warfare with Germanic tribes and other neighboring powers drained resources and "
+    },
+    {
+      "pos": 140,
+      "rec": 1.0,
+      "already": true,
+      "ctx": " resources made it vulnerable to inv",
+      "ex": "asions by Germanic tribes and other neighboring powers. The breakdown of the traditional R"
+    },
+    {
+      "pos": 150,
+      "rec": 0.1,
+      "already": true,
+      "ctx": " tribes and other neighboring powers.",
+      "ex": " Additionally, the loss of the Western Roman Empire to the Ostrogoths in 476 marked the sy"
+    },
+    {
+      "pos": 160,
+      "rec": 1.0,
+      "already": true,
+      "ctx": " of the western half of the",
+      "ex": " empire to barbarian invasions in the late 5th century marked the end of the Roman Republi"
+    },
+    {
+      "pos": 170,
+      "rec": 0.0,
+      "already": true,
+      "ctx": " incursions in the 5",
+      "ex": ""
+    },
+    {
+      "pos": 180,
+      "rec": 0.0,
+      "already": true,
+      "ctx": " end of the Western Roman Empire",
+      "ex": ""
+    },
+    {
+      "pos": 190,
+      "rec": 0.0,
+      "already": true,
+      "ctx": " Roman Empire, or Byzantine",
+      "ex": ""
+    }
+  ]
+}

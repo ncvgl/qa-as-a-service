@@ -1,0 +1,47 @@
+[
+  {
+    "pos": 0,
+    "rec_long": 1.0,
+    "ctx": ""
+  },
+  {
+    "pos": 4,
+    "rec_long": 1.0,
+    "ctx": "The fall of Rome"
+  },
+  {
+    "pos": 8,
+    "rec_long": 1.0,
+    "ctx": " of Rome was the result of"
+  },
+  {
+    "pos": 12,
+    "rec_long": 1.0,
+    "ctx": " result of a complex interplay"
+  },
+  {
+    "pos": 16,
+    "rec_long": 1.0,
+    "ctx": " interplay of internal decay,"
+  },
+  {
+    "pos": 20,
+    "rec_long": 1.0,
+    "ctx": " decay, external pressures, and"
+  },
+  {
+    "pos": 24,
+    "rec_long": 1.0,
+    "ctx": ", and societal shifts that gradually"
+  },
+  {
+    "pos": 32,
+    "rec_long": 1.0,
+    "ctx": " the empire's stability and strength"
+  },
+  {
+    "pos": 48,
+    "rec_long": 0.9,
+    "ctx": " fragmented, stretching its resources thin"
+  }
+]

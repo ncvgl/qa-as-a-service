@@ -1,0 +1,196 @@
+{
+  "list": {
+    "prompt": "Why do startups fail? Answer as a numbered list of factors.",
+    "greedy": "1. **Inadequate Funding** \u2013 Lack of sufficient capital can lead to financial strain and prevent startups from scaling.  \n2. **Poor Market Research** \u2013 Without understanding the target audience and market demand, startups may fail to capture a viable market.  \n3. **Ineffective Management** \u2013 Poor leadership, poor resource allocation, or lack of strategic planning can lead to failure.  \n4. **High Costs** \u2013 High operational costs can make it difficult to sustain and scale the business.  \n5. **Unrealistic Expectations** \u2013 Setting unrealistic goals or expectations can lead to burnout and failure.  \n6. **Lack of Innovation** \u2013 Without creative solutions, startups may struggle to stay competitive.  \n7. **Regulatory and Legal Issues** \u2013 Non-compliance with laws and regulations can result in legal issues.  \n8. **Poor Customer Service** \u2013 Poor customer support can lead to dissatisfaction and loss of customers.  \n9. **Overreliance on Technology**",
+    "rows": [
+      {
+        "pos": 0,
+        "resample_recovery": 0.375,
+        "ctx": ""
+      },
+      {
+        "pos": 8,
+        "resample_recovery": 0.125,
+        "ctx": " **Inadequate Funding**"
+      },
+      {
+        "pos": 16,
+        "resample_recovery": 0.25,
+        "ctx": " of sufficient capital can lead to"
+      },
+      {
+        "pos": 24,
+        "resample_recovery": 0.1875,
+        "ctx": " and prevent startups from scaling."
+      },
+      {
+        "pos": 32,
+        "resample_recovery": 0.0,
+        "ctx": ". **Poor Market Research**"
+      },
+      {
+        "pos": 40,
+        "resample_recovery": 0.0,
+        "ctx": " understanding the target audience and market"
+      },
+      {
+        "pos": 48,
+        "resample_recovery": 0.0,
+        "ctx": " startups may fail to capture a"
+      },
+      {
+        "pos": 56,
+        "resample_recovery": 0.0,
+        "ctx": ".  \n3. **In"
+      },
+      {
+        "pos": 64,
+        "resample_recovery": 0.0,
+        "ctx": "** \u2013 Poor leadership, poor"
+      },
+      {
+        "pos": 72,
+        "resample_recovery": 0.0625,
+        "ctx": ", or lack of strategic planning"
+      },
+      {
+        "pos": 80,
+        "resample_recovery": 0.0,
+        "ctx": " to failure.  \n4."
+      },
+      {
+        "pos": 88,
+        "resample_recovery": 0.0625,
+        "ctx": " Costs** \u2013 High operational costs"
+      },
+      {
+        "pos": 96,
+        "resample_recovery": 0.0625,
+        "ctx": " it difficult to sustain and scale"
+      },
+      {
+        "pos": 104,
+        "resample_recovery": 0.0625,
+        "ctx": ".  \n5. **Un"
+      },
+      {
+        "pos": 112,
+        "resample_recovery": 0.0,
+        "ctx": " Expectations** \u2013 Setting unrealistic"
+      },
+      {
+        "pos": 120,
+        "resample_recovery": 0.0,
+        "ctx": " expectations can lead to burnout"
+      },
+      {
+        "pos": 128,
+        "resample_recovery": 0.125,
+        "ctx": ".  \n6. **L"
+      },
+      {
+        "pos": 136,
+        "resample_recovery": 0.25,
+        "ctx": " Innovation** \u2013 Without creative solutions"
+      },
+      {
+        "pos": 144,
+        "resample_recovery": 0.0,
+        "ctx": " may struggle to stay competitive."
+      },
+      {
+        "pos": 152,
+        "resample_recovery": 0.0,
+        "ctx": ". **Regulatory and Legal"
+      },
+      {
+        "pos": 160,
+        "resample_recovery": 0.0,
+        "ctx": " \u2013 Non-compliance with laws"
+      },
+      {
+        "pos": 168,
+        "resample_recovery": 0.0625,
+        "ctx": " can result in legal issues."
+      },
+      {
+        "pos": 176,
+        "resample_recovery": 0.0,
+        "ctx": ". **Poor Customer Service**"
+      },
+      {
+        "pos": 184,
+        "resample_recovery": 0.0,
+        "ctx": " customer support can lead to dissatisfaction"
+      },
+      {
+        "pos": 192,
+        "resample_recovery": 0.0,
+        "ctx": " of customers.  \n9."
+      }
+    ],
+    "target_in_greedy": true
+  },
+  "narrative": {
+    "prompt": "Why do startups fail? Answer in a single flowing paragraph of prose. Do not use any lists, numbers, headings, or bullet points.",
+    "greedy": "Startups often fail due to a combination of poor planning, lack of market demand, and insufficient resources. Without a clear vision and a solid foundation, they may struggle to scale and adapt to changing market conditions. Additionally, failing to invest adequately in talent, technology, and operations can lead to financial instability and operational challenges. Ultimately, the ability to pivot and learn from failures is crucial for the success of any startup.",
+    "rows": [
+      {
+        "pos": 0,
+        "resample_recovery": 0.5,
+        "ctx": ""
+      },
+      {
+        "pos": 8,
+        "resample_recovery": 0.625,
+        "ctx": " often fail due to a combination"
+      },
+      {
+        "pos": 16,
+        "resample_recovery": 0.0625,
+        "ctx": " planning, lack of market demand"
+      },
+      {
+        "pos": 24,
+        "resample_recovery": 0.0,
+        "ctx": " insufficient resources. Without a clear"
+      },
+      {
+        "pos": 32,
+        "resample_recovery": 0.0625,
+        "ctx": " a solid foundation, they may"
+      },
+      {
+        "pos": 40,
+        "resample_recovery": 0.0,
+        "ctx": " scale and adapt to changing market"
+      },
+      {
+        "pos": 48,
+        "resample_recovery": 0.0625,
+        "ctx": " Additionally, failing to invest adequately"
+      },
+      {
+        "pos": 56,
+        "resample_recovery": 0.0,
+        "ctx": ", technology, and operations can"
+      },
+      {
+        "pos": 64,
+        "resample_recovery": 0.0625,
+        "ctx": " financial instability and operational challenges."
+      },
+      {
+        "pos": 72,
+        "resample_recovery": 0.0,
+        "ctx": " the ability to pivot and learn"
+      },
+      {
+        "pos": 80,
+        "resample_recovery": 0.0,
+        "ctx": " is crucial for the success of"
+      }
+    ],
+    "target_in_greedy": true
+  }
+}
